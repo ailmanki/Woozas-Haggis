@@ -1,0 +1,13 @@
+name        = "Wooza's Haggis"
+source_dir  = "source"
+output_dir  = "output"
+description = [=[##Wooza's Haggis
+
+Contains custom badges and mod panels and these mods:
+- Gorge Heart Heal Spray
+- Mod Panels++
+]=]
+image       = "preview.jpg"
+tag_modtype = "Custom Game Mode"
+tag_support = "Must be run on Server"
+publish_id = "70dc2712"
