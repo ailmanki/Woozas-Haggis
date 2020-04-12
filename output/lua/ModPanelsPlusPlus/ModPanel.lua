@@ -147,7 +147,12 @@ end
 
 if Client then
 	function ModPanel:OnUse()
-		Client.ShowWebpage(self.url)
+		if string.sub(self.url, 1, 7) == "connect" then
+			Shared.ConsoleCommand(self.url)
+			Print("Connecting to %s",  self.url)
+		else
+			Client.ShowWebpage(self.url)
+		end
 	end
 end
 Shared.LinkClassToMap("ModPanel", ModPanel.kMapName, networkVars, true)

@@ -1,0 +1,5 @@
+shader = "shaders/ModPanel.surface_shader"
+panel  = "modpanels/wooza/uscentral.dds"
+url    = "connect us.relay.apheriox.com:27015"
+
+
