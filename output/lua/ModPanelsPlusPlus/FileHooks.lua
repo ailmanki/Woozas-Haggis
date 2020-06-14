@@ -1,6 +1,9 @@
 ModLoader.SetupFileHook("lua/Gamerules.lua", "lua/ModPanelsPlusPlus/Gamerules.lua", "post")
 ModLoader.SetupFileHook("lua/ModPanels/FileHooks.lua", true, "halt")
 
+-- Load Shine hooks
+ModLoader.SetupFileHook( "lua/shine/core/shared/hook.lua", "lua/shine/hook.lua", "post" )
+
 kModPanels = {}
 
 local dot = string.byte('.')
