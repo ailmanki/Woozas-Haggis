@@ -48,18 +48,6 @@ local function increasePitch(client, amount)
 	changeAngles(client, "pitch", amount)
 end
 
-local function scale(client, x, y, z)
-	local ent = trace(client).entity
-
-	if invalid(client, ent) then
-		return
-	end
-
-	ent.scale.x = x
-	ent.scale.y = y
-	ent.scale.z = z
-end
-
 local function pushRelative(client, amount)
 	local t, _, startPoint = trace(client)
 	local endPoint = t.endPoint
