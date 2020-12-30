@@ -1,11 +1,11 @@
 name        = "Wooza's Haggis"
 source_dir  = "source"
 output_dir  = "output"
-description = [=[##Wooza's Haggis
-
-Contains custom badges and mod panels and these mods:
-- Gorge Heart Heal Spray
-- Mod Panels++
+description = [=[Contains badges, mod panels and these mods:
+- Admin Powers
+- [url=steamcommunity.com/sharedfiles/filedetails/?id=102340684]Gorge Heart Heal Spray[/url]
+- [url=steamcommunity.com/sharedfiles/filedetails/?id=2275553669]Manly Moustache[/url]
+- [url=steamcommunity.com/sharedfiles/filedetails/?id=892794974]Mod Panels++[/url]
 ]=]
 image       = "preview.jpg"
 tag_modtype = "Custom Game Mode"
