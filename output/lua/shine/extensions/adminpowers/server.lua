@@ -90,22 +90,26 @@ end
 local error_handler = Shine.BuildErrorHandler "Sudo command error"
 local hooks = debug.getregistry()["Event.HookTable"]
 Event.Hook("Console_sudo", function(client, func_name, ...)
-	local event = "Console_" .. func_name
-	local func = hooks[event] and hooks[event][1]
-	if not func then
-		ServerAdminPrint(client, "No such command!")
-		return
-	end
 	if not Shine:HasAccess(client, "sh_cheats") then
 		ServerAdminPrint(client, "You don't have access to sudo!")
 		return
 	end
-	if not Shared.GetCheatsEnabled() then
-		Shared.ConsoleCommand("cheats 1")
-		xpcall(func, error_handler, client, ...)
-		Shared.ConsoleCommand("cheats 0")
-	else
-		return func(client, ...)
+	if func_name then
+		local event = "Console_" .. func_name
+		local func = hooks[event] and hooks[event][1]
+		if not func then
+			ServerAdminPrint(client, "No such command!")
+			return
+		end
+		
+		if not Shared.GetCheatsEnabled() then
+			Shared.ConsoleCommand("cheats 1")
+			xpcall(func, error_handler, client, ...)
+			Shared.ConsoleCommand("cheats 0")
+		else
+			return func(client, ...)
+		end
+		return
 	end
 end)
 
