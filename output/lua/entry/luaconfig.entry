@@ -1,0 +1,5 @@
+modEntry = {}
+
+if Server then
+	Script.Load "lua/LuaConfig/main.lua"
+end

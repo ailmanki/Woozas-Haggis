@@ -1,0 +1,1 @@
+Shine.LoadJSONFile = LoadConfigFileAbsolute
