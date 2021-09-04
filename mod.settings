@@ -1,10 +1,11 @@
 name        = "Wooza's Haggis"
 source_dir  = "source"
 output_dir  = "output"
-description = [=[Contains badges, mod panels and these mods:
-- Admin Powers
+description = [=[Contains these mods:
+- Admin Powers, badges, mod panels, shoulder pads, loading icon.
 - [url=steamcommunity.com/sharedfiles/filedetails/?id=2546876200] Disabled Only Commandstation [/url]
 - [url=steamcommunity.com/sharedfiles/filedetails/?id=853525464] Fewer Build Restrictions Redux [/url]
+- [url=steamcommunity.com/sharedfiles/filedetails/?id=2194928658] Flamethrower fix [/url]
 - [url=steamcommunity.com/sharedfiles/filedetails/?id=2503487382] Flexing Skills [/url]
 - [url=steamcommunity.com/sharedfiles/filedetails/?id=102340684] Gorge Heart Heal Spray[/url]
 - [url=steamcommunity.com/sharedfiles/filedetails/?id=1306795374] Lua Configuration [/url]
