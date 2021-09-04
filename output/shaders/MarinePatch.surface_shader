@@ -1,0 +1,87 @@
+<shader>
+    
+    <inputs>
+        <!-- should be specified via material file -->
+        <input name="numRows" type="float">5</input>
+        <input name="numColumns" type="float">4</input>         
+        <input name="atlas" type="texture" address="wrap"/>
+        <input name="opacityMap" type="texture" address="wrap"/>
+        <input name="emissiveMap" type="texture" address="wrap" srgb="true"/>
+        <input name="shoulderpadMap" type="texture" address="wrap"/>
+        <input name="hiddenAmount" type="float">0.0</input>
+        <input name="highlight" type="float">0.0</input>
+
+        <!-- should be specified via game -->
+        <!-- Row major index. 0 is the top-left rect -->
+        <!-- pass in -1 for no patch -->
+        <input name="patchIndex" type="float">0</input>
+    </inputs>
+
+    <params>
+        <param name="alphaTest">true</param>
+    </params>
+
+    <code>
+    <![CDATA[
+        void MaterialShader( in Material_Input input, inout Material material )
+        {
+            float highlightId   = highlight;
+            if( patchIndex >= 0 )
+            {
+                // Halloween 2018 patch takes two image slots, for two frames of animation.
+                float pt = (time * 0.25f) - floor(time * 0.25f);
+                float nPidx = patchIndex;
+
+                if (patchIndex == 15 && pt >= 0.75f)
+                {
+                    // Intuitively, the patchIndex corresponds to the design, not the image frame.
+                    // Shift all patchIndexes after halloween2018 up by one so they get the proper
+                    // image.
+                    nPidx = patchIndex + 1;
+                }
+                if (patchIndex == 16 && pt >= 0.75f)
+                {
+                    // Halloween 2018 patch animates like follows:
+                    // 0-3s = frame 1
+                    // 3-4s = frame 2
+                    nPidx = patchIndex - 1;
+                }
+
+                if (patchIndex > 17)
+                {
+                	nPidx = patchIndex - 18;
+                	numRows = 8;
+                	numColumns = 8;
+                }
+                float f   = 1 - hiddenAmount;
+                float2 uv = input.texCoord;
+                float row = floor(nPidx / numColumns);
+                float col = nPidx - row * numColumns;
+                uv.x = (col+uv.x) / numColumns;
+                uv.y = (row+uv.y) / numRows;
+
+                if (patchIndex > 17)
+                {
+                	float4 tex =  tex2D(shoulderpadMap, uv);
+
+                	//material.albedo	= tex2D(atlas, uv).rgb;
+                	material.opacity = tex.a *f;
+					material.albedo 	= tex.rgb;
+					//material.scale = 2.0;
+				} else {
+					material.albedo = tex2D(atlas, uv).rgb;
+                    material.opacity = tex2D(opacityMap, uv).r *f;
+                    material.emissive = tex2D(emissiveMap, uv).rgb;
+				}
+            }
+            else
+            {
+                material.albedo = float3(1,0,0);
+                material.opacity = 0;
+            }
+            material.id = 1 * highlightId;    // for alien vision
+        }
+    ]]>
+    </code>
+
+</shader>

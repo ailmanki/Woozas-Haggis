@@ -3,9 +3,13 @@ source_dir  = "source"
 output_dir  = "output"
 description = [=[Contains badges, mod panels and these mods:
 - Admin Powers
-- [url=steamcommunity.com/sharedfiles/filedetails/?id=102340684]Gorge Heart Heal Spray[/url]
-- [url=steamcommunity.com/sharedfiles/filedetails/?id=2275553669]Manly Moustache[/url]
-- [url=steamcommunity.com/sharedfiles/filedetails/?id=892794974]Mod Panels++[/url]
+- [url=steamcommunity.com/sharedfiles/filedetails/?id=2546876200] Disabled Only Commandstation [/url]
+- [url=steamcommunity.com/sharedfiles/filedetails/?id=853525464] Fewer Build Restrictions Redux [/url]
+- [url=steamcommunity.com/sharedfiles/filedetails/?id=2503487382] Flexing Skills [/url]
+- [url=steamcommunity.com/sharedfiles/filedetails/?id=102340684] Gorge Heart Heal Spray[/url]
+- [url=steamcommunity.com/sharedfiles/filedetails/?id=2275553669] Manly Moustache [/url]
+- [url=steamcommunity.com/sharedfiles/filedetails/?id=892794974] Mod Panels++ [/url]
+- [url=steamcommunity.com/sharedfiles/filedetails/?id=784637460] [Shine] Rave [/url]
 ]=]
 image       = "preview.jpg"
 tag_modtype = "Custom Game Mode"

@@ -1,0 +1,8 @@
+shader = "shaders/MarinePatch.surface_shader"
+atlas = "materials/dev/black.dds"
+opacityMap = "models/marine/patches/shoulder_patch_opac.dds"
+emissiveMap = "models/marine/patches/shoulder_patch_emissive.dds"
+shoulderpadMap = "models/marine/patches/shoulderpads.dds"
+numRows = 5
+numColumns = 4
+surface = "metal"

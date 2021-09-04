@@ -1,0 +1,4 @@
+modEntry = {
+	FileHooks = "lua/ShoulderPad/FileHooks.lua",
+	Priority  = -1
+}
