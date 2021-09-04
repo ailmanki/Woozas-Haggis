@@ -1,0 +1,4 @@
+modEntry = {
+	FileHooks = "lua/iplimitfree/FileHooks.lua",
+	Priority = 1024
+}

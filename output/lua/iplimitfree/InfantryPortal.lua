@@ -1,0 +1,1 @@
+kMaxInfantryPortalsPerCommandStation = 10
