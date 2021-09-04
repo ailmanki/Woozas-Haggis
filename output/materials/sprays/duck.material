@@ -1,0 +1,2 @@
+shader = "shaders/spray.surface_shader"
+albedoMap = "materials/sprays/duck.dds"
