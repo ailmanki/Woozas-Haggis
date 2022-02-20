@@ -1,0 +1,4 @@
+modEntry = {
+    FileHooks = "lua/deathscreen/FileHooks.lua",
+    Priority = 90
+}

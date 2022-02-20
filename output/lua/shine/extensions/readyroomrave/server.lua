@@ -190,10 +190,10 @@ function Plugin:OnConsoleCreateSpray(client)
         local angles = Angles()
         angles:BuildFromCoords(coords)
 
-        local nearbyPlayers = GetEntitiesWithinRange("Player", origin, 20)
+        local players = GetEntities("Player")
         
-        for p = 1, #nearbyPlayers do
-            self:SendNetworkMessage( nearbyPlayers[p], "CreateSpray", { originX = coords.origin.x, originY = coords.origin.y, originZ = coords.origin.z,
+        for p = 1, #players do
+            self:SendNetworkMessage( players[p], "CreateSpray", { originX = coords.origin.x, originY = coords.origin.y, originZ = coords.origin.z,
             yaw = angles.yaw, pitch = angles.pitch, roll = angles.roll, path = ToString(decalPath) }, true )
         end
     end

@@ -6,6 +6,7 @@ do
 		"Alien4",
 		"Allen",
 		"Approved",
+		"Atoku",
 		"Avenger",
 		"Cactuar",
 		"che",
@@ -43,7 +44,9 @@ do
 		"Yolo",
 		"Yolo2",
 		"Yolo3",
-		"ZycaR"
+		"ZycaR",
+		"Spec Ops Hardman",
+		"Space Cowboy"
 	}
 	
 	function insertShoulderPad(name, value)
@@ -533,35 +536,58 @@ local ShoulderPadUsers = {
 	[119788994]= {
 		-- Pereba
 		"O.R.A. Playtest"
+	},
+	[43005456]= {
+		-- Spec Ops Hardman
+		"Spec Ops Hardman"
+	},
+	[76208664]={
+		-- Atoku
+		"Atoku"
+	},
+	[90064642]={
+		-- Möxl (SpaceCowboy)
+		"Space Cowboy"
 	}
 }
 
 local oldGetHasShoulderPad = GetHasShoulderPad
 function GetHasShoulderPad(index, client)
-	
-	local itemId = kShoulderPad2ItemId[index]
-	
-	if itemId == 40000 then
+
+	if kShoulderPad2ItemId[index] == 40000 then
 		local itemName = kShoulderPadNames[index]
-		
+
 		local userid
 		if Client then
 			userid = Client.GetSteamId()
 		elseif client then
 			userid = client:GetUserId()
 		end
-		
+
 		if userid and ShoulderPadUsers[userid] then
-			local list = ShoulderPadUsers[userid]
-			for i= 1, #list do
-				if list[i] == itemName then
+			for i= 1, #ShoulderPadUsers[userid] do
+				if ShoulderPadUsers[userid][i] == itemName then
 					return true
 				end
 			end
 		end
-		
+
 		return false
 	end
-	
+
 	return oldGetHasShoulderPad(index, client)
+end
+
+local oldGetOwnsItem = GetOwnsItem
+function GetOwnsItem( itemId, client )
+	return itemId == 40000 or oldGetOwnsItem(itemId,client)
+end
+
+local oldGetIsItemThunderdomeUnlock = GetIsItemThunderdomeUnlock
+function GetIsItemThunderdomeUnlock( itemId )
+	if itemId == true then
+		return false
+	else
+		oldGetIsItemThunderdomeUnlock(itemId)
+	end
 end

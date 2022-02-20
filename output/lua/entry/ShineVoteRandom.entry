@@ -1,0 +1,4 @@
+modEntry = {
+	FileHooks = "lua/ShineVoteRandom/FileHooks.lua",
+	Priority = 51
+}

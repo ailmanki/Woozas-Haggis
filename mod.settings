@@ -3,19 +3,20 @@ source_dir  = "source"
 output_dir  = "output"
 description = [=[Contains these mods:
 - Admin Powers, badges, mod panels, shoulder pads, loading icon.
-- [url=steamcommunity.com/sharedfiles/filedetails/?id=2546876200] Do Only Commandstation [/url]
+- [url=steamcommunity.com/sharedfiles/filedetails/?id=2546876200] Disabled Only Commandstation [/url]
 - [url=steamcommunity.com/sharedfiles/filedetails/?id=2194928658] Flamethrower fix [/url]
 - [url=steamcommunity.com/sharedfiles/filedetails/?id=2503487382] Flexing Skills [/url]
-- [url=steamcommunity.com/sharedfiles/filedetails/?id=102340684] Gorge Heart Heal Spray [/url]
+- [url=steamcommunity.com/sharedfiles/filedetails/?id=102340684] Gorge Heart Heal Spray[/url]
 - [url=steamcommunity.com/sharedfiles/filedetails/?id=2363270893] IP limit increase [/url]
 - [url=steamcommunity.com/sharedfiles/filedetails/?id=1306795374] Lua Configuration [/url]
 - [url=steamcommunity.com/sharedfiles/filedetails/?id=2275553669] Manly Moustache [/url]
 - [url=steamcommunity.com/sharedfiles/filedetails/?id=892794974] Mod Panels++ [/url]
 - [url=steamcommunity.com/sharedfiles/filedetails/?id=1893117731] [Shine] Discord Bridge [/url]
+- [url=steamcommunity.com/sharedfiles/filedetails/?id=208649136] [Shine] Epsilon [/url] ([url=github.com/GhoulofGSG9/Shine-Epsilon/wiki/ExtraIps]Extra Ips[/url], [url=steamcommunity.com/linkfilter/?url=https://github.com/GhoulofGSG9/Shine-Epsilon/wiki/Enforce-Team-Sizes] Enforce Team Sizes [/url])
 - [url=steamcommunity.com/sharedfiles/filedetails/?id=784637460] [Shine] Rave [/url]
 - [url=steamcommunity.com/sharedfiles/filedetails/?id=593421222] [Shine] Wonitor [/url]
 ]=]
 image       = "preview.jpg"
 tag_modtype = "Custom Game Mode"
 tag_support = "Must be run on Server"
-publish_id = "70dc2712"
+publish_id = 1893476114

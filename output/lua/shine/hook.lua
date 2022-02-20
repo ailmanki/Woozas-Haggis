@@ -1,6 +1,5 @@
 -- Set of known compatible/incompatible plugins for your gamemode (any not in this table will use their default behaviour).
 local CompatiblePlugins = {
-	voterandom = true,
 	votesurrender = true,
 	pregame = true
 }

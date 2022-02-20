@@ -185,7 +185,7 @@ local function UpdateGameState()
 	local CurState = kGameState[GetGamerules():GetGameState()]
 	local numPlayers = Server.GetNumPlayersTotal()
 	local maxPlayers = Server.GetMaxPlayers()
-	local roundTime = Shared.GetTime()
+	--local roundTime = Shared.GetTime()
 	local playerCount = numPlayers .. "/" .. maxPlayers
 
 	Plugin:SendToDiscord("status", CurState, Shared.GetMapName(), playerCount)
