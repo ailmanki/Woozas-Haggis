@@ -4,7 +4,11 @@ local function mean(i_players, t_team)
 	for _, v in ipairs(i_players) do
 		sum = sum + v[t_team]
 	end
-	return sum / #i_players
+	if sum == 0 then
+		return 0
+	else
+		return sum / #i_players
+	end
 end
 
 -- computes the variance of team members skills, using a previously computed mean(average) m
@@ -18,8 +22,11 @@ local function variance(i_players, t_team, m_teamMean)
 	end
 	-- this test is costly here (because nested in loops ultimately)
 	-- could be removed by avoiding shuffling when too few players are present
-	
-	return varianceSum / (#i_players - 1) -- usual definition of variance (usual bias)
+	if varianceSum == 0 then
+		return 0
+	else
+		return varianceSum / (#i_players - 1) -- usual definition of variance (usual bias)
+	end
 end
 
 -- Counts how many players are unhappy with the team
@@ -169,6 +176,7 @@ end
 -- swaps have been evaluated, apply the best one, the one minimizing asymmetry.
 -- Break off the while loop once no better swap can be found.
 local function swap(asymmetryFunc, t1, t2)
+	local iteration = 0
 	local old_asym = 600 -- impossible worst initial value to enter loop once at least
 	local new_asym = asymmetryFunc(false, t1, t2) -- current value, before any swap
 	local count1 = #t1 -- players in team1
@@ -212,10 +220,15 @@ local function swap(asymmetryFunc, t1, t2)
 		else
 			break -- to avoid double testing the same (new_asym < old_asym) in "while (...) do"
 		end
+		if iteration > 10000 then
+			break
+		end
+		iteration = iteration + 1
 	end
 end
 
 local function swapPairs(asymmetryFunc, t1, t2)
+	local iteration = 0
 	local old_asym = 600 -- impossible worst initial value to enter loop once at least
 	local new_asym = asymmetryFunc(false, t1, t2) -- current value, before any swap
 	local count1 = #t1 -- players in team1
@@ -283,6 +296,10 @@ local function swapPairs(asymmetryFunc, t1, t2)
 		else
 			break -- to avoid double testing the same (new_asym < old_asym) in "while (...) do"
 		end
+		if iteration > 10000 then
+			break
+		end
+		iteration = iteration + 1
 	end
 end
 local function pick_loop(asymmetryFunc, t0, t1, t2, n)
@@ -341,6 +358,7 @@ end
 -- picking players from ready room to minimize asymmetry
 -- at some point check that #ti =< #tmax
 local function pick(asymmetryFunc, t0, t1, t2, maxPlayersTeam)
+	local iteration = 0
 	-- as long as we have available players and teams that are not full
 	while 0 < #t0 and (#t1 < maxPlayersTeam or #t2 < maxPlayersTeam) do
 		-- which team has less players?
@@ -353,6 +371,10 @@ local function pick(asymmetryFunc, t0, t1, t2, maxPlayersTeam)
 			-- would need an entirely new function as a default case
 			pick_loop(asymmetryFunc, t0, t1, t2, 2)
 		end
+		if iteration > 1000 then
+			break
+		end
+		iteration = iteration + 1
 	end
 end
 
@@ -417,6 +439,7 @@ end
 
 -- a function to switch players while caring for a lower asymmetry
 local function switch(asymmetryFunc, t1, t2)
+	local iteration = 0
 	local old_asym = 3
 	local new_asym = asymmetryFunc(false, t1, t2)
 	while (new_asym < old_asym) do
@@ -430,12 +453,18 @@ local function switch(asymmetryFunc, t1, t2)
 			new_asym = switch_loop(asymmetryFunc, t1, t2, 2, old_asym) -- adding to team 2 from team 1, if we can also lower asymmetry
 		
 		end
+		if iteration > 1000 then
+			break
+		end
+		iteration = iteration + 1
 	end
 end
 
 -- here we balance the number of players even if we get a worse (an higher) asymmetry because it's more important
 -- but we still try to minimize the asymmetry we get in switch_loop()
+
 local function move(asymmetryFunc, t1, t2)
+	local iteration = 0
 	while 1 < math.abs(#t1 - #t2) do
 		-- while teams are too unbalanced in terms of #players
 		-- the 3 variable is ignored, because switch_loop returns a useless new asymmetry in this case
@@ -445,6 +474,10 @@ local function move(asymmetryFunc, t1, t2)
 		else
 			switch_loop(asymmetryFunc, t1, t2, 2, 3) -- add to team 2 from team 1 with initial asym very high because we don't care yet
 		end
+		if iteration > 1000 then
+			break
+		end
+		iteration = iteration + 1
 	end
 end
 

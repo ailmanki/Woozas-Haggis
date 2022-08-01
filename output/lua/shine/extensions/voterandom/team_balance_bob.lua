@@ -1170,7 +1170,17 @@ BalanceModule.ShufflingModes = {
 		else
 			maxPlayersTeam = math.floor(Server.GetMaxPlayers() / 2)
 		end
-		
+
+		local playerCount = #t1 + #t2
+		local fileName = os.date("%Y%m%d%H%M%S") .. '_' .. playerCount
+
+		local sampledataFile = io.open("config://voterandom/" .. fileName .. '_input.json', "w+")
+		if sampledataFile ~= nil then
+			local sampledataInput = json.encode(sampledata, { indent = true })
+			sampledataFile:write(sampledataInput)
+		end
+		io.close(sampledataFile)
+
 		local start_time = os.clock()
 		
 		
@@ -1180,18 +1190,7 @@ BalanceModule.ShufflingModes = {
 		self:Print("time spent:  " .. (end_time - start_time) .. "sec")
 		self:Print( "Teams were sorted based on Meter." )
 		
-		
-		local playerCount = #t1 + #t2
-		local fileName = os.date("%Y%m%d%H%M%S") .. '_' .. playerCount
-		
-		
-		
-		local sampledataFile = io.open("config://voterandom/" .. fileName .. '_input.json', "w+")
-		if sampledataFile ~= nil then
-			local sampledataInput = json.encode(sampledata, { indent = true })
-			sampledataFile:write(sampledataInput)
-		end
-		io.close(sampledataFile)
+
 		
 		sampledataFile = io.open("config://voterandom/" .. fileName .. '_output.txt', "w+")
 		if sampledataFile ~= nil then

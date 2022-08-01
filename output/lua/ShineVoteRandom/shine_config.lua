@@ -13,11 +13,13 @@ local DefenseMaps = {
 	ns2_kf_farm         = "KF Farm",
 	ns2_tow_biodome     = "TOW Biodome",
 	ns2_tow_combi       = "TOW Combi",
-	ns2_tow_summit 		= "TOW Summit",
-	ns2_tow_summit_2021 = "TOW Summit",
-	ns2_tow_stag        = "TOW Stag",
 	ns2_tow_descent     = "TOW Descent",
 	ns2_tow_refinery    = "TOW Refinery",
+	ns2_tow_stag        = "TOW Stag",
+	ns2_tow_summit 		= "TOW Summit",
+	ns2_tow_summit_2021 = "TOW Summit 2021",
+	ns2_tow_veil        = "TOW Veil",
+	ns2_tow_caged       = "TOW Caged",
 }
 
 local SiegeMaps = {

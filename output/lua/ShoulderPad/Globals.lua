@@ -25,6 +25,7 @@ do
 		"MalpraveShoulder",
 		"MvM Event Nov 2017",
 		"Nalice",
+		"Nogizaka 46",
 		"NS2:Combat Event",
 		"O.R.A. Playtest",
 		"Otter_Patch",
@@ -104,6 +105,10 @@ local ShoulderPadUsers = {
 	[118678504]= {
 		-- Nalice
 		"Nalice", "O.R.A. Playtest", "NS2:Combat Event"
+	},
+	[96252419]= {
+		-- yumi_wakatsuki
+		"Nogizaka 46"
 	},
 	[54048007]= {
 		-- Underdog
