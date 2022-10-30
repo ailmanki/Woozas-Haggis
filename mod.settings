@@ -17,6 +17,6 @@ description = [=[Contains these mods:
 - [url=steamcommunity.com/sharedfiles/filedetails/?id=593421222] [Shine] Wonitor [/url]
 ]=]
 image       = "preview.jpg"
-tag_modtype = "Custom Game Mode"
-tag_support = "Must be run on Server"
+tag_modtype = "Alien Vision"
+tag_support = "Passes Default Consistency"
 publish_id = 1893476114

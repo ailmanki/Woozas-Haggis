@@ -1,0 +1,4 @@
+modEntry = {
+	FileHooks = "lua/CombatFixes/FileHooks.lua",
+	Priority = 0
+}

@@ -12,11 +12,14 @@ Script.Load("lua/GUI/GUIObject.lua")
 Script.Load("lua/menu2/GUIMenuTabbedBox.lua")
 Script.Load("lua/menu2/widgets/GUIMenuTabButtonWidget.lua")
 Script.Load("lua/menu2/widgets/GUIMenuScrollPane.lua")
---Script.Load("lua/menu2/GUIHaggisChangelog.lua")
 Script.Load("lua/GUI/GUIText.lua")
 Script.Load("lua/GUI/GUIParagraph.lua")
 
 Script.Load("lua/haggischangelog/menu2/GUIHaggisChangelogData.lua")
+
+--GUIHaggisChangelog.topEdge = 271
+
+local kHaggisChangelogViewedOptionKey = "haggis_mod/lastVersionViewed"
 
 local kInnerBackgroundSideSpacing = 16 -- horizontal spacing between edge of outer background and inner background.
 local kInnerBackgroundTopSpacing = 220 -- spacing between top edge of outer background and inner background.
@@ -66,15 +69,72 @@ class "GUIHaggisChangelog" (baseClass)
 
 GUIHaggisChangelog:AddClassProperty("IsOpen", false)
 
+local function UpdateResolutionScaling(self, newX, newY)
+
+    local mockupRes = Vector(3840, 2160, 0)
+    local res = Vector(newX, newY, 0)
+    local scale = res / mockupRes
+    scale = math.min(scale.x, scale.y)
+
+    self:SetScale(scale, scale)
+    self:SetPosition(0, 0) --self.topEdge * scale)
+    self:AlignCenter()
+end
+
+-- needs to be a float
+local kHaggisVersion = "8.10"
+function GetHaggisVersion()
+    return kHaggisVersion
+end
+
+local function GetIsVersionOlderThanCurrent(oldVersion)
+    local lastVersionUnits = string.Explode(oldVersion, "%.")
+    local currentVersionUnits = string.Explode(GetHaggisVersion(), "%.")
+    local maxUnitPos = math.min(#lastVersionUnits, #currentVersionUnits)
+
+    for i = 1, maxUnitPos do
+        if tonumber(lastVersionUnits[i]) < tonumber(currentVersionUnits[i]) then
+            return true
+        end
+    end
+
+    return false
+end
+
+local myHaggisChangelog
+
+function GetHaggisChangelog()
+    return myHaggisChangelog
+end
+
 function GUIHaggisChangelog:Initialize(params, errorDepth)
     errorDepth = (errorDepth or 1) + 1
-
+    myHaggisChangelog = self
     baseClass.Initialize(self, params, errorDepth)
 
     self.contentObs = {}
 
+    -- Nav bar is to be centered horizontally in the screen.
     self:AlignCenter()
-    self:SetLayer(999)
+    -- Set initial state of mouse cursor.  We want it visible, but not clipped if this isn't in-game.
+    --MouseTracker_SetIsVisible(true, "ui/Cursor_MenuDefault.dds", true)
+    --
+
+    self:HookEvent(GetGlobalEventDispatcher(), "OnResolutionChanged", UpdateResolutionScaling)
+    UpdateResolutionScaling(self, Client.GetScreenWidth(), Client.GetScreenHeight())
+
+
+
+    self:HookEvent(self, "OnVisibleChanged",
+            function(self, visible)
+                if visible then
+                    MouseTracker_SetIsVisible(true, "ui/Cursor_MenuDefault.dds", true)
+                else
+                    MouseTracker_SetIsVisible(false)
+                end
+            end)
+
+    self:SetLayer(1200)
 
     self.title = CreateGUIObject("title", GUIStyledText, self,
     {
@@ -115,10 +175,34 @@ function GUIHaggisChangelog:Initialize(params, errorDepth)
     --self:HookEvent(self.tabButtonWeb, "OnPressed", self.OpenWebsite)
 
     self:SetSize(2262, 1600)
-    self:SetY(750)
+    --self:SetY(750)
     self:Close()
 
+
 end
+
+--local function GUIHaggisChangelogCallbackOpener()
+--    local target = GetHaggisChangelog()
+--    if target then
+--        target:RemoveTimedCallback(target.callback)
+--        target.callback = nil
+--        target:Open()
+--        Client.SetOptionString(kHaggisChangelogViewedOptionKey, GetHaggisVersion())
+--    end
+--end
+
+function GUIHaggisChangelog:DelayedInit()
+    local lastChangelogVerViewed = Client.GetOptionString(kHaggisChangelogViewedOptionKey, "0")
+    if GetIsVersionOlderThanCurrent(lastChangelogVerViewed) then
+        --Log("New Haggis loaded!")
+        --self.callback = self:AddTimedCallback(GUIHaggisChangelogCallbackOpener, 0.5, true)
+        self:Open()
+        Client.SetOptionString(kHaggisChangelogViewedOptionKey, GetHaggisVersion())
+    else
+        --Log("Haggis loaded!")
+    end
+end
+
 
 --function GUIHaggisChangelog:OpenWebsite()
 --    local kHaggisChangelogUrl = "https://www.peyote.ch"
@@ -154,10 +238,10 @@ end
 
 local kStyleToFontsMap =
 {
-    [1] = {family = "AgencyBold", size = 68}, -- largest header
-    [2] = {family = "AgencyBold", size = 56},
-    [3] = {family = "Agency", size = 50},
-    [0] = {family = "Arial", size = 28} -- normal text
+    [1] = {family = "AgencyBold", size = 49}, -- largest header
+    [2] = {family = "AgencyBold", size = 39},
+    [3] = {family = "Agency", size = 31},
+    [0] = {family = "Arial", size = 25} -- normal text
 }
 
 local kStyleToColorMap =
@@ -242,8 +326,9 @@ function GUIHaggisChangelog:OnKey(key, down)
         self:Close()
     end
 end
-
 function GUIHaggisChangelog:Close()
+        self:StopListeningForCursorInteractions()
+        self:StopListeningForWheelInteractions()
     self:StopListeningForKeyInteractions()
     self:SetVisible(false)
     self:ClearModal()
@@ -252,9 +337,25 @@ function GUIHaggisChangelog:Close()
 end
 
 function GUIHaggisChangelog:Open()
+    self:ListenForCursorInteractions()
+    self:ListenForWheelInteractions()
     self:ListenForKeyInteractions()
     self:SetVisible(true)
     self:SetModal()
     self:SetIsOpen(true)
     self:FireEvent("Opened")
+end
+
+
+
+if Client then
+    Event.Hook("Console_haggis_reset_version", function()
+        Client.SetOptionString(kHaggisChangelogViewedOptionKey, "0")
+        Log("Haggis version reset")
+    end)
+
+    Event.Hook("Console_haggis_version", function()
+        Log(string.format("Haggis Mod Version: %s", GetHaggisVersion()))
+    end)
+
 end

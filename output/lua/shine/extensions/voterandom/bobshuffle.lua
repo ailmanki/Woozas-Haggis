@@ -31,11 +31,29 @@ end
 
 -- Counts how many players are unhappy with the team
 -- the more unhappy the more it tends to 1
+--local function unhappiness(i_players, t_team)
+--	local sum = 0
+--	for _, v in ipairs(i_players) do
+--		if v.pref ~= t_team then
+--			sum = sum + 1
+--		end
+--	end
+--	if sum == 0 then
+--		return 0
+--	else
+--		return sum / #i_players
+--	end
+--end
+
+-- Counts how many players are unhappy with the team
+-- Uses Historical Data
+-- the more unhappy the more it tends to 1+
 local function unhappiness(i_players, t_team)
 	local sum = 0
 	for _, v in ipairs(i_players) do
 		if v.pref ~= t_team then
-			sum = sum + 1
+			-- unhappiness value is already preprocessed to be at least 1 and some maximum
+			sum = sum + v.unhappiness
 		end
 	end
 	if sum == 0 then
@@ -87,7 +105,7 @@ end
 local boostMean = 5
 local boostVariance = 1
 local boostSkewness = 1
-local boostUnhappiness = 1.41
+local boostUnhappiness = 1
 -- computes a coefficient that gets higher the more the teams are unbalanced.
 -- The more the skill distributions are similar in terms of mean, variance, skewness (not necessarily normal
 -- distribution, simply alike), the lower the coefficient gets.
@@ -112,8 +130,9 @@ local function asymmetryCompare(oldAsymmetry, t1, t2)
 	
 	local h1 = unhappiness(t1, 1)
 	local h2 = unhappiness(t2, 2)
-	local r0= relative(h1, h2)
-	local unhappy =  r0 + ((h1 + h2) * boostUnhappiness)
+	--local r0= relative(h1, h2)
+	--local unhappy =  r0 + ((h1 + h2) * boostUnhappiness)
+	local unhappy =  (h1 + h2) * boostUnhappiness
 	
 	if false ~= oldAsymmetry and unhappy > oldAsymmetry then
 		return unhappy

@@ -817,39 +817,18 @@ end
 	This method populates self.LastShufflePreferences which causes shine to store it in a file later on
 ]]
 function BalanceModule:SaveHappiness( TeamMembers )
-	local Preferences = TeamMembers.TeamPreferences
-	
-	-- Collect the total happiness of the server population.
-	-- A player who is on the team they do not want has a happiness of -1 * historic happiness factor.
-	-- A player who is on the team they do want has a happiness of 1 * historic happiness factor.
-	-- The sum produces an overall idea of how happy everyone is.
+
 	local PreferenceLookup = {}
-	for i = 1, 2 do
-		local Team = TeamMembers[ i ]
-		for j = 1, #Team do
-			local Player = Team[ j ]
-			local Preference = Preferences[ Player ]
+	for _, Team in ipairs(TeamMembers) do
+		for _, Player in Team do
 			local Client = Player:GetClient()
 			if Client then
-				PreferenceLookup[ Client:GetUserId() ] = Preference
+				PreferenceLookup[ Client:GetUserId() ] = Player.pref
 			end
-			
-			--local PlayerHappiness = self:GetWeightedHappiness( Player, Preference, i )
-			--TotalHappiness = TotalHappiness + PlayerHappiness
-			--self.Logger:Trace( "Player %s has happiness %s", Client and Client:GetUserId() or Player, PlayerHappiness )
 		end
 	end
-	
-	--self.Logger:Debug( "Total happiness of server population is: %s", TotalHappiness )
-	
 	self.LastShufflePreferences = PreferenceLookup
-	
-	-- If there are more weighted unhappy players than happy, swap the teams around entirely.
-	-- This will put all the people who are not happy with their team onto the team they want, and vice-versa.
-	--if TotalHappiness < 0 then
-	--	self.Logger:Debug( "Swapping teams due to happiness..." )
-	--	TeamMembers[ 1 ], TeamMembers[ 2 ] = TeamMembers[ 2 ], TeamMembers[ 1 ]
-	--end
+
 end
 
 --[[
@@ -1045,6 +1024,27 @@ local function GetFieldPlayerSkill( Ply, TeamNumber, TeamSkillEnabled )
 	
 	return nil
 end
+
+local function GetClientUserId(Player)
+	local Client = Player:GetClient()
+	local clientUserId
+	if Client then
+		clientUserId = Client:GetUserId()
+	end
+	return tostring(clientUserId)
+end
+
+local function GetUnHappiness(HappinessHistoryData, clientUserId)
+	local unHappiness = HappinessHistoryData[clientUserId]
+	if nil == unHappiness then
+		unHappiness = 0
+	else
+		unHappiness = -(unHappiness)
+	end
+	unHappiness = Max(unHappiness, 1)
+	return unHappiness
+end
+
 BalanceModule.ShufflingModes = {
 	-- Random only.
 	[ Plugin.ShuffleMode.RANDOM ] = function( self, Gamerules, Targets, TeamMembers, Silent )
@@ -1107,60 +1107,76 @@ BalanceModule.ShufflingModes = {
 			}
 		}
 		]]
+
+		local HappinessHistoryFile = "config://shine/temp/happiness_history.json"
+		local HappinessHistoryData = Shine.LoadJSONFile( HappinessHistoryFile ) or {}
+
 		local t0 = {} -- ready room
 		local t1 = {} -- marine
 		local t2 = {} -- alien
 		local sampledata = {}
 		for _, Player in ipairs(TeamMembers[1]) do
-			
+			local clientUserId = GetClientUserId(Player)
+			local unhappiness = GetUnHappiness(HappinessHistoryData, clientUserId)
+
 			table.insert(t1, {
 				player = Player,
 				name = Player:GetName(),
 				marine = GetFieldPlayerSkill(Player, 1, true),
 				alien = GetFieldPlayerSkill(Player, 2, true),
 				commander = Player:isa( "Commander" ),
-				pref = TeamMembers.TeamPreferences[ Player ]
+				pref = TeamMembers.TeamPreferences[ Player ],
+				unhappiness = unhappiness
 			})
 			table.insert(sampledata, {
 				name = Player:GetName(),
 				marine = GetFieldPlayerSkill(Player, 1, true),
 				alien = GetFieldPlayerSkill(Player, 2, true),
 				commander = Player:isa( "Commander" ),
-				pref = "marine"
+				pref = "marine",
+				unhappiness = unhappiness
 			})
 		end
 		for _, Player in ipairs(TeamMembers[2]) do
+			local clientUserId = GetClientUserId(Player)
+			local unhappiness = GetUnHappiness(HappinessHistoryData, clientUserId)
 			table.insert(t2, {
 				player = Player,
 				name = Player:GetName(),
 				marine = GetFieldPlayerSkill(Player, 1, true),
 				alien = GetFieldPlayerSkill(Player, 2, true),
 				commander = Player:isa( "Commander" ),
-				pref = TeamMembers.TeamPreferences[ Player ]
+				pref = TeamMembers.TeamPreferences[ Player ],
+				unhappiness = unhappiness
 			})
 			table.insert(sampledata, {
 				name = Player:GetName(),
 				marine = GetFieldPlayerSkill(Player, 1, true),
 				alien = GetFieldPlayerSkill(Player, 2, true),
 				commander = Player:isa( "Commander" ),
-				pref = "alien"
+				pref = "alien",
+				unhappiness = unhappiness
 			})
 		end
 		for _, Player in ipairs(Targets) do
+			local clientUserId = GetClientUserId(Player)
+			local unhappiness = GetUnHappiness(HappinessHistoryData, clientUserId)
 			table.insert(t0, {
 				player = Player,
 				name = Player:GetName(),
 				marine = GetFieldPlayerSkill(Player, 1, true),
 				alien = GetFieldPlayerSkill(Player, 2, true),
 				commander = false, --Player:isa( "Commander" ),
-				pref = TeamMembers.TeamPreferences[ Player ]
+				pref = TeamMembers.TeamPreferences[ Player ],
+				unhappiness = unhappiness
 			})
 			table.insert(sampledata, {
 				name = Player:GetName(),
 				marine = GetFieldPlayerSkill(Player, 1, true),
 				alien = GetFieldPlayerSkill(Player, 2, true),
 				commander = Player:isa( "Commander" ),
-				pref = "none"
+				pref = "none",
+				unhappiness = unhappiness
 			})
 		end
 		local EnforceTeamsizes = Shine.Plugins.enforceteamsizes
@@ -1182,7 +1198,7 @@ BalanceModule.ShufflingModes = {
 		io.close(sampledataFile)
 
 		local start_time = os.clock()
-		
+
 		
 		bobShuffle.main(t0, t1, t2, maxPlayersTeam)
 		local end_time = os.clock()
@@ -1198,7 +1214,34 @@ BalanceModule.ShufflingModes = {
 			sampledataFile:write(text)
 		end
 		io.close(sampledataFile)
-		
+
+
+		-- After shuffling, store the happiness of the player
+		-- intentionally here directly after shuffle.
+		TeamMembers[1] = t1
+		TeamMembers[2] = t2
+		for teamNumber, Team in ipairs(TeamMembers) do
+			for _, Player in ipairs(Team) do
+				local Client = Player.player:GetClient()
+				if Client then
+					local clientUserId = tostring(Client:GetUserId())
+
+					local happiness = HappinessHistoryData[ clientUserId ]
+					if nil == happiness then
+						happiness = 0
+					end
+					if Player.pref == teamNumber then
+						happiness = happiness + 1
+					else
+						happiness = happiness - 1
+					end
+					HappinessHistoryData[ clientUserId ] = happiness
+				end
+			end
+		end
+		Shine.SaveJSONFile( HappinessHistoryData, HappinessHistoryFile )
+
+
 		--self:Print(inspect(SortTable))
 		-- If some players have rank 0 or no rank data, sort them with the fallback instead.
 		--local FallbackTargets = GetFallbackTargets( Targets, Sorted )
@@ -1215,7 +1258,9 @@ BalanceModule.ShufflingModes = {
 		for _, Player in ipairs(t2) do
 			table.insert(TeamMembers[2], Player.player)
 		end
-		
+
+
+
 		EvenlySpreadTeams( Gamerules, TeamMembers, self.Config.BalanceMode )
 	end
 }

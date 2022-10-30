@@ -23,6 +23,22 @@ end
 
 gHaggisChangelogData =
 [[
+»17 October 2022
+    ● Fixed server error in combat mode, related to auto welding.
+»16 October 2022
+    ● Fixed wrong date for previous news.
+    ● Removed +40% team preference boost in shuffle algorithm.
+    ● Add Scatter's weapons to Defense mod.
+»8 October 2022
+    ● Add happiness history to improve shuffle team preferences. It now also looks at past rounds if the player got into the preferred team.
+»6 August 2022
+    ● Modular Exosuits updated, preparations so we can add it to "vanilla" - thx to Scatter
+        ● adjusted costs
+        ● adjusted weights
+        ● lowered railgun dmg
+        ● preparations for new abilities
+»2 August 2022
+    ● Add auto-popup for the Playground News and removed icon animation.
 »1 August 2022
     ● Modular Exosuits updated - thx to Scatter
         ● new Catpack upgrade
