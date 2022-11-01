@@ -1,0 +1,5 @@
+modEntry = {
+    ModName = "Haggis Mod (Client Changelog)",
+    FileHooks = "lua/haggischangelog/FileHooks.lua",
+    Priority = 498
+}
