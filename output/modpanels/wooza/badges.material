@@ -1,3 +1,0 @@
-shader = "shaders/ModPanel.surface_shader"
-panel  = "modpanels/wooza/badges.dds"
-url    = "http://apheriox.com/custom-badges-tutorial/"

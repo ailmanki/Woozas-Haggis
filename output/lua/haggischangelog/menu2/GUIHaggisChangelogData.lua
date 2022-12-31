@@ -23,6 +23,28 @@ end
 
 gHaggisChangelogData =
 [[
+»31 December 2022
+    ● Fixed Meter skill
+»19 December 2022
+    ● Add Defense mod
+»10 December 2022
+    ● Patch 343 has been released
+        ● Defense mod is broken (disabled)
+        ● Combat mod
+            ● Prowler is broken (disabled)
+            ● Map co_nest is broken (disabled)
+»5 December 2022
+    ● Add Extreme Shadows mod, see Options->Mods (add yesterday)
+    ● Add Outage mod, makes the power outage use the original light color (add a while ago)
+    ● Made sentry animations smooth
+»27 November 2022
+    ● Defense
+        ● Add new map ns2_tow_fusion
+        ● Commander can drop up to 128 sentries instead of 6 per room
+        ● Sentry dmg increased from 4 to 5
+        ● Sentry shoot distance increase from 20 to 60
+        ● Reduced ARC range
+    ● Removed Badges mod panel
 »17 October 2022
     ● Fixed server error in combat mode, related to auto welding.
 »16 October 2022

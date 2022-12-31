@@ -1,5 +1,5 @@
 -- Max players allowed in game
-kMaxPlayers = 48
+kMaxPlayers = 52
 do
 	local shoulderPads = {
 		"8Bit",
@@ -30,7 +30,7 @@ do
 		"O.R.A. Playtest",
 		"Otter_Patch",
 		"Pacific",
-		"paldon",
+		"Paldon",
 		"parche",
 		"Patch52",
 		"Priest",
@@ -553,6 +553,10 @@ local ShoulderPadUsers = {
 	[90064642]={
 		-- Möxl (SpaceCowboy)
 		"Space Cowboy"
+	},
+	[6132501]={
+		-- Paldon
+		"Paldon"
 	}
 }
 

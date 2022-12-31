@@ -10,16 +10,17 @@ end
 
 local DefenseMaps = {
 	ns2_def_troopers    = "Troopers",
-	ns2_kf_farm         = "KF Farm",
-	ns2_tow_biodome     = "TOW Biodome",
-	ns2_tow_combi       = "TOW Combi",
-	ns2_tow_descent     = "TOW Descent",
-	ns2_tow_refinery    = "TOW Refinery",
-	ns2_tow_stag        = "TOW Stag",
-	ns2_tow_summit 		= "TOW Summit",
-	ns2_tow_summit_2021 = "TOW Summit 2021",
-	ns2_tow_veil        = "TOW Veil",
-	ns2_tow_caged       = "TOW Caged",
+	ns2_kf_farm         = "KF Farm"
+	--ns2_tow_biodome     = "TOW Biodome",
+	--ns2_tow_combi       = "TOW Combi",
+	--ns2_tow_descent     = "TOW Descent",
+	--ns2_tow_fusion      = "TOW Fusion",
+	--ns2_tow_refinery    = "TOW Refinery",
+	--ns2_tow_stag        = "TOW Stag",
+	--ns2_tow_summit 		= "TOW Summit",
+	--ns2_tow_summit_2021 = "TOW Summit 2021",
+	--ns2_tow_veil        = "TOW Veil",
+	--ns2_tow_caged       = "TOW Caged",
 }
 
 local SiegeMaps = {
@@ -54,6 +55,10 @@ local SiegeMaps = {
 	sg_descent = "Descent",
 }
 
+local StringCapitalise = string.Capitalise
+local StringExplode = string.Explode
+local StringGSub = string.gsub
+
 Shine.Hook.Add( "OnGetNiceMapName", "MyGetNiceMapName", function( MapName)
 	if DefenseMaps[MapName] ~= nil then
 		return "Defense: " .. DefenseMaps[MapName]
@@ -61,5 +66,28 @@ Shine.Hook.Add( "OnGetNiceMapName", "MyGetNiceMapName", function( MapName)
 	if SiegeMaps[MapName] ~= nil then
 		return "Siege: " .. SiegeMaps[MapName]
 	end
-	return false
+
+
+	-- Otherwise, infer the name using existing conventions.
+	local NiceName = StringGSub( MapName, "^ns[12]?_", "" )
+
+	local Words = StringExplode( NiceName, "_", true )
+	local KnownPrefixWords = {
+		co = "Combat:",
+		sws = "SWS:",
+		sg = "Siege:",
+		gg = "Gun Game:",
+		ls = "Last Stand:",
+		infest = "Infested:",
+		tow = "Defense:"
+	}
+	KnownPrefixWords.infect = KnownPrefixWords.infest
+
+	return Shine.Stream( Words ):Map( function( Word, Index )
+		if Index > 1 then
+			-- Gamemode words should only be used on the first word.
+			return StringCapitalise( Word )
+		end
+		return KnownPrefixWords[ Word ] or StringCapitalise( Word )
+	end ):Concat( " " )
 end )

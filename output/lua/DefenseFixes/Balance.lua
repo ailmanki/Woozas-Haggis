@@ -1,0 +1,1 @@
+kSentryDamage = 5

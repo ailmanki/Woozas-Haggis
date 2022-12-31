@@ -36,6 +36,7 @@ defense_hell_wave = false
 defense_hell_wave_type = nil
 defense_hell_wave_maxdifficulty = false
 defense_rain_hell = false
+waveFinishedTime = 0
 
 function FadedRoundTimer_GetGameStartTime()
     local entityList = Shared.GetEntitiesWithClassname("GameInfo")
@@ -110,9 +111,13 @@ end
 -- return wave.tunnel_dropper
 -- return wave.tunnel_drop_rate
 
+local waveScaleFix = 60/100
+local dmgScaleFix = 100/100
+local hpScaleFix = 100/100
+
 defense_waves_config =
-    {
-    }
+{
+}
 
 function getWaveNb()
     return wave_nb
@@ -162,7 +167,7 @@ hell_lifeforms = {
 }
 skulk_hell_lifeforms = {
     -- 0 Babblers, it's better to use CPU for other lifeforms than wasting them on that
-    {mapName = Babbler.kMapName , nb = 100},
+    {mapName = Babbler.kMapName , nb = 0},
     {mapName = Skulk.kMapName   , nb = 260},
     {mapName = Gorge.kMapName   , nb = 0},
     {mapName = Lerk.kMapName    , nb = 0},
@@ -172,7 +177,7 @@ skulk_hell_lifeforms = {
 }
 lerk_hell_lifeforms = {
     -- 0 Babblers, it's better to use CPU for other lifeforms than wasting them on that
-    {mapName = Babbler.kMapName , nb = 100},
+    {mapName = Babbler.kMapName , nb = 0},
     {mapName = Skulk.kMapName   , nb = 0},
     {mapName = Gorge.kMapName   , nb = 0},
     {mapName = Lerk.kMapName    , nb = 200},
@@ -181,7 +186,7 @@ lerk_hell_lifeforms = {
     {mapName = BoneWall.kMapName, nb = 0}
 }
 grind_hell_lifeforms = {
-    {mapName = Babbler.kMapName , nb = 600},
+    {mapName = Babbler.kMapName , nb = 0},
     {mapName = Skulk.kMapName   , nb = 100*1.8},
     {mapName = Gorge.kMapName   , nb = 35*2},
     {mapName = Lerk.kMapName    , nb = 50*2.6},
@@ -326,16 +331,16 @@ function generateWaves(hell)
         --    lifeforms = predef_lifeforms[i]
         -- else
         local lifeforms =
-            {
-                {mapName = Babbler.kMapName , nb = 2  + getScalar(1, i, 1, max_wave_nb, 0, 0 * wave_balance_scale)},
-                {mapName = Skulk.kMapName   , nb = 11 + getScalar(1, i, 1, max_wave_nb, 0, 125 * wave_balance_scale)},
-                -- {mapName = Skulk.kMapName   , nb = 100000 + getScalar(1, i, 1, max_wave_nb, 0, 85/2.1)},
-                {mapName = Gorge.kMapName   , nb = 3  + getScalar(1, i, 1, max_wave_nb, 0, 25 * wave_balance_scale)},
-                {mapName = Lerk.kMapName    , nb = 0  + getScalar(1, i, 1, max_wave_nb, 0, 55 * wave_balance_scale)},
-                {mapName = Fade.kMapName    , nb = 0  + getScalar(1, i, 1, max_wave_nb, 0, 12 * wave_balance_scale)},
-                {mapName = Onos.kMapName    , nb = 0  + getScalar(1, i, 1, max_wave_nb, 0, 20 * wave_balance_scale)},
-                {mapName = BoneWall.kMapName, nb = 1  + getScalar(1, i, 1, max_wave_nb, 0, 3 * wave_balance_scale)}
-            }
+        {
+            {mapName = Babbler.kMapName , nb = 0  + getScalar(1, i, 1, max_wave_nb, 0, 0 * wave_balance_scale)},
+            {mapName = Skulk.kMapName   , nb = 11 + getScalar(1, i, 1, max_wave_nb, 0, 125 * wave_balance_scale)},
+            -- {mapName = Skulk.kMapName   , nb = 100000 + getScalar(1, i, 1, max_wave_nb, 0, 85/2.1)},
+            {mapName = Gorge.kMapName   , nb = 3  + getScalar(1, i, 1, max_wave_nb, 0, 25 * wave_balance_scale)},
+            {mapName = Lerk.kMapName    , nb = 0  + getScalar(1, i, 1, max_wave_nb, 0, 55 * wave_balance_scale)},
+            {mapName = Fade.kMapName    , nb = 0  + getScalar(1, i, 1, max_wave_nb, 0, 12 * wave_balance_scale)},
+            {mapName = Onos.kMapName    , nb = 0  + getScalar(1, i, 1, max_wave_nb, 0, 20 * wave_balance_scale)},
+            {mapName = BoneWall.kMapName, nb = 1  + getScalar(1, i, 1, max_wave_nb, 0, 3 * wave_balance_scale)}
+        }
         -- end
 
         defense_waves_config[i].squads = {}
@@ -372,8 +377,8 @@ function generateWaves(hell)
             -- if (lifeforms[j].mapName ~= Onos.kMapName or getWaveNb() >= 3) then
             nb_squad = nb_squad + lifeforms[j].nb --* getScalarPlayers(1, 24, 0.14, 1.05)
             nb_squad = nb_squad
-                - getScalar(1, math.random(), 0, 1, 0, nb_squad / 10)
-                + getScalar(1, math.random(), 0, 1, 0, nb_squad / 5)
+                    - getScalar(1, math.random(), 0, 1, 0, nb_squad / 10)
+                    + getScalar(1, math.random(), 0, 1, 0, nb_squad / 5)
             -- end
         end
 
@@ -415,15 +420,15 @@ function generateWaves(hell)
 
             if (do_create_squad) then
                 table.insert(defense_waves_config[i].squads,
-                             genSquad({0},
-                                      math.floor(squad[1]),
-                                      math.floor(squad[2]),
-                                      math.floor(squad[3]),
-                                      math.floor(squad[4]),
-                                      math.floor(squad[5]),
-                                      math.floor(squad[6]),
-                                      math.floor(squad[7])
-                             ))
+                        genSquad({0},
+                                math.floor(squad[1]),
+                                math.floor(squad[2]),
+                                math.floor(squad[3]),
+                                math.floor(squad[4]),
+                                math.floor(squad[5]),
+                                math.floor(squad[6]),
+                                math.floor(squad[7])
+                        ))
                 for id = 1, #lifeforms do
                     squad[id] = squad[id] - math.floor(squad[id])
                 end
@@ -459,6 +464,8 @@ function resetWaves()
     sacrified_marine = {} -- Do not keep sacrified marine in between rounds
 
     generateWaves()
+
+    waveFinishedTime = 0
 end
 
 local hive_build_count = 0
@@ -492,7 +499,7 @@ function getAlienSpeedScalar()
 
     local scalar = 1
     -- local wave_scalar = (1 / #defense_waves_config) * wave_nb
-    scalar = getScalarPlayers(1, 16, 0.90, 1.15)
+    scalar = getScalarPlayers(1, 20, 0.90, 1.10)
 
     local nb_hive = _getBuildHiveNb()
 
@@ -558,16 +565,54 @@ function getAlienDamageScalar()
     return scalar + scalar * (nb_hive * 0.08)
 end
 
+-- function GetStartVoteAllowed(voteName, client)
+
+--     if not GetStartVoteAllowedForThunderdome(voteName) then
+--             return kVoteCannotStartReason.ThunderdomeDisallowed
+--         end
+
+--         -- Check that there is no current vote.
+--         if activeVoteName then
+--             return kVoteCannotStartReason.VoteInProgress
+--         end
+
+
+
+
+local lastWaveMsgDisplayed = false
 function areAllWavesFinished()
     local wave = defense_waves_config[wave_nb]
 
+
     if (wave_nb > #defense_waves_config or
-        (wave_nb == #defense_waves_config and squad_nb >= #wave.squads and getBotsNumberAlive() <= 3)) then
+            (wave_nb == #defense_waves_config and squad_nb >= #wave.squads and getBotsNumberAlive() <= 3)) then
         if defense_hell_wave_type == "Grind" then
             triggerGrindHellWave() -- Reset
             return false
         end
-        return true
+
+        if (GetStartVoteAllowed("") == kVoteCannotStartReason.VoteInProgress) then
+            waveFinishedTime = 0 -- Reset countdown to leave time for the vote to complete
+            -- Shared:FadedMessage("Vote detected")
+        end
+
+        local concedeTime = 20
+
+        if (waveFinishedTime == 0) then
+            waveFinishedTime = Shared.GetTime()
+            if (not lastWaveMsgDisplayed) then
+                Shared:FadedMessage("Last wave defeated: aliens will concede in " .. tostring(concedeTime) .. "s")
+                Shared:FadedMessage("(Unless you vote for a hell wave :p)")
+                lastWaveMsgDisplayed = true
+            end
+        end
+
+
+        if (Shared.GetTime() - waveFinishedTime > concedeTime) then -- 20s buffer before ending the round
+            return true
+        end
+    else
+        waveFinishedTime = 0
     end
     return false
 end
@@ -671,7 +716,9 @@ function getMinAlienOnMap(automatic_mod)
     -- end
 
     local wave = defense_waves_config[wave_nb]
-    local max_aliens = (defense_hell_wave_type == "Extra_Skulk" and 42 or 36)-- 70 -- max allowed (limite before server can't handle)
+    local max_aliens = (defense_hell_wave_type == "Extra_Skulk" and 42 or 36) * 1.20-- 200 -- max allowed (limite before server can't handle)
+
+    -- max_aliens = 150
 
     local nb_players = GetGamerules():GetTeam1():GetNumPlayers()--getNbPlayerAliveForTeam1()
     local min_aliens = 0
@@ -710,8 +757,8 @@ function refreshPopCounterData()
         for _, marine in ipairs(GetEntities(entname)) do
             if (not DefIsVirtual(marine)) then
                 Server.SendNetworkMessage(marine, "LifeformCounterSetPop", {
-                                              pop = wave_pop,
-                                              max_pop = wave_max_pop}, true)
+                    pop = wave_pop,
+                    max_pop = wave_max_pop}, true)
             end
         end
     end
@@ -730,25 +777,25 @@ function refreshAllCounterData(team_specifique)
         for _, marine in ipairs(ents) do
             if (not DefIsVirtual(marine)) then
                 Server.SendNetworkMessage(marine, "LifeformCounterSet", {
-                                              lifeformMapName = Skulk.kMapName,
-                                              nb = remaining_lifeform[Skulk.kMapName],
-                                              unspawn_nb = unspawn_lifeform[Skulk.kMapName]}, true)
+                    lifeformMapName = Skulk.kMapName,
+                    nb = remaining_lifeform[Skulk.kMapName],
+                    unspawn_nb = unspawn_lifeform[Skulk.kMapName]}, true)
                 Server.SendNetworkMessage(marine, "LifeformCounterSet", {
-                                              lifeformMapName = Lerk.kMapName,
-                                              nb = remaining_lifeform[Lerk.kMapName],
-                                              unspawn_nb = unspawn_lifeform[Lerk.kMapName]}, true)
+                    lifeformMapName = Lerk.kMapName,
+                    nb = remaining_lifeform[Lerk.kMapName],
+                    unspawn_nb = unspawn_lifeform[Lerk.kMapName]}, true)
                 Server.SendNetworkMessage(marine, "LifeformCounterSet", {
-                                              lifeformMapName = Gorge.kMapName,
-                                              nb = remaining_lifeform[Gorge.kMapName],
-                                              unspawn_nb = unspawn_lifeform[Gorge.kMapName]}, true)
+                    lifeformMapName = Gorge.kMapName,
+                    nb = remaining_lifeform[Gorge.kMapName],
+                    unspawn_nb = unspawn_lifeform[Gorge.kMapName]}, true)
                 Server.SendNetworkMessage(marine, "LifeformCounterSet", {
-                                              lifeformMapName = Fade.kMapName,
-                                              nb = remaining_lifeform[Fade.kMapName],
-                                              unspawn_nb = unspawn_lifeform[Fade.kMapName]}, true)
+                    lifeformMapName = Fade.kMapName,
+                    nb = remaining_lifeform[Fade.kMapName],
+                    unspawn_nb = unspawn_lifeform[Fade.kMapName]}, true)
                 Server.SendNetworkMessage(marine, "LifeformCounterSet", {
-                                              lifeformMapName = Onos.kMapName,
-                                              nb = remaining_lifeform[Onos.kMapName],
-                                              unspawn_nb = unspawn_lifeform[Onos.kMapName]}, true)
+                    lifeformMapName = Onos.kMapName,
+                    nb = remaining_lifeform[Onos.kMapName],
+                    unspawn_nb = unspawn_lifeform[Onos.kMapName]}, true)
             end
         end
     end
@@ -832,42 +879,42 @@ if (Server) then
                     for i = #AllSkulks, math.max(1, #AllSkulks - amountTeleported), -1 do
                         if not AllSkulks[i].def_teleported then
                             AllSkulks[i]:SetOrigin(self.infinit_backorigin_s[1]
-                                                       + Vector((math.random() - 0.5) / 10,
-                                                                (math.random() - 0.5) / 10,
-                                                                (math.random() - 0.5) / 10))
+                                    + Vector((math.random() - 0.5) / 10,
+                                    (math.random() - 0.5) / 10,
+                                    (math.random() - 0.5) / 10))
                             AllSkulks[i]:SetAngles(self:GetAngles())
                             AllSkulks[i].def_teleported = Shared.GetTime()
                         end
-                            -- Log(" Teleporting Skulk <=========================")
+                        -- Log(" Teleporting Skulk <=========================")
                     end
 
 
-                   -- ent = CreateEntity(Skulk.kMapName, farSkulkOrig, 2)
-                   -- ent = CreateEntity(Skulk.kMapName, self.infinit_backorigin_s[1], 2)
-                   -- ent:SetVelocity(Vector(
-                   --                     math.random() < 0.5 and 1 or -1,
-                   --                     math.random() < 0.80 and 3 or -0.2,
-                   --                     math.random() < 0.5 and 1 or -1
-                   --                       ) * 10
-                   -- )
-               else
-                   -- Log("Skulk hidden, close spawn")
-                   if self.infinit_backorigin[1]:GetDistanceTo(self:GetOrigin()) > 12 then
-                       ent = CreateEntity(Skulk.kMapName, self.infinit_backorigin[1], 2)
-                       AllSkulks[#AllSkulks]:SetOrigin(self.infinit_backorigin[1]
-                                                           + Vector((math.random() - 0.5) / 10,
-                                                                    (math.random() - 0.1) / 10,
-                                                                    (math.random() - 0.5) / 10))
-                       ExtraHardSkulkWave_AddSpawnPoint(self.infinit_backorigin[1])
+                    -- ent = CreateEntity(Skulk.kMapName, farSkulkOrig, 2)
+                    -- ent = CreateEntity(Skulk.kMapName, self.infinit_backorigin_s[1], 2)
+                    -- ent:SetVelocity(Vector(
+                    --                     math.random() < 0.5 and 1 or -1,
+                    --                     math.random() < 0.80 and 3 or -0.2,
+                    --                     math.random() < 0.5 and 1 or -1
+                    --                       ) * 10
+                    -- )
+                else
+                    -- Log("Skulk hidden, close spawn")
+                    if self.infinit_backorigin[1]:GetDistanceTo(self:GetOrigin()) > 12 then
+                        ent = CreateEntity(Skulk.kMapName, self.infinit_backorigin[1], 2)
+                        AllSkulks[#AllSkulks]:SetOrigin(self.infinit_backorigin[1]
+                                + Vector((math.random() - 0.5) / 10,
+                                (math.random() - 0.1) / 10,
+                                (math.random() - 0.5) / 10))
+                        ExtraHardSkulkWave_AddSpawnPoint(self.infinit_backorigin[1])
 
-                   end
-               end
+                    end
+                end
 
-               if ent then
-                   Entity.AddTimedCallback(ent, PushTarget, 0)
-                   lifeformKilled(Skulk.kMapName)
-               end
-           end
+                if ent then
+                    Entity.AddTimedCallback(ent, PushTarget, 0)
+                    lifeformKilled(Skulk.kMapName)
+                end
+            end
         else
             lifeformKilled(Skulk.kMapName)
         end
@@ -1042,8 +1089,9 @@ local function getRandomTunnel()
     for _, t in ipairs(_tunnels) do
         -- Do not use tunnel far away from marines
         marines = GetEntitiesForTeamWithinRange("Player", 1, t:GetOrigin(), 40)
-        if (t:GetTunnelEntity() and #marines > 0 and t:GetIsBuilt()
-                and t:GetCreationTime() + 5 < Shared.GetTime())
+        if (t:GetIsAlive()
+                and t:GetTunnelEntity() and #marines > 0 and t:GetIsBuilt()
+                and t:GetCreationTime() + 10 < Shared.GetTime())
         then
             if (t.def_last_spawn == nil or t.def_last_spawn + 2 < Shared.GetTime()) then
                 table.insert(tunnels, t)
@@ -1075,6 +1123,12 @@ function wavesGetTunnelDropChances() -- Chances to spawn a tunnel each sec
 end
 
 local function spawnEntUsingTunnel(tunnel, mapname)
+
+    if (not (tunnel and tunnel:GetIsAlive())) then
+        return
+    end
+
+
     local internal_tunnel = tunnel:GetTunnelEntity()
 
     l = spawnAlienCreature(mapname, getRandomCystAroundMarine():GetOrigin())
@@ -1087,130 +1141,136 @@ local function spawnEntUsingTunnel(tunnel, mapname)
         else
             return
         end
-      -- function Tunnel:UseExit(entity, exit, exitSide)
-   end
-   return
+        -- function Tunnel:UseExit(entity, exit, exitSide)
+    end
+
+    return
 end
 
 local function spawnNextSquad()
-   if (wave_nb == 0) then
-      return 0
-   end
+    if (wave_nb == 0) then
+        return 0
+    end
 
-   if defense_hell_wave_type == "Grind" then
-       if (#GetEntitiesForTeam("Alien", 2) + #GetEntitiesForTeam("Hallucination", 2)) >= get_grind_limit_count() then
-           return 0
-       end
-   end
+    if defense_hell_wave_type == "Grind" then
+        if (#GetEntitiesForTeam("Alien", 2) + #GetEntitiesForTeam("Hallucination", 2)) >= get_grind_limit_count() then
+            return 0
+        end
+    end
 
-   for _, marine in ipairs(GetEntities("Player")) do
-      if (not DefIsVirtual(marine)) then
-         Server.SendNetworkMessage(marine, "GUIAlienCounter", {
-                                      progress = nil,
-                                      wave_nb = wave_nb,
-                                      wave_total = #defense_waves_config,
-                                      hell_type = defense_hell_wave_type or "",
-                                      rain_type = defense_rain_hell
-                                                              }, true)
-      end
-   end
+    for _, marine in ipairs(GetEntities("Player")) do
+        if (not DefIsVirtual(marine)) then
+            Server.SendNetworkMessage(marine, "GUIAlienCounter", {
+                progress = nil,
+                wave_nb = wave_nb,
+                wave_total = #defense_waves_config,
+                hell_type = defense_hell_wave_type or "",
+                rain_type = defense_rain_hell
+            }, true)
+        end
+    end
 
-   local wave = defense_waves_config[wave_nb]
+    local wave = defense_waves_config[wave_nb]
 
-   local next_squad = nil
-   local nb_players = GetGamerules():GetTeam1():GetNumPlayers()
+    local next_squad = nil
+    local nb_players = GetGamerules():GetTeam1():GetNumPlayers()
 
-   if (wave and squad_nb > #wave.squads) then
-      defenseToggleMinimap(true)
-   end
+    if (wave and squad_nb > #wave.squads) then
+        defenseToggleMinimap(true)
+    end
 
-   while (wave and squad_nb <= #wave.squads) do
-      next_squad = wave.squads[squad_nb]
-      if (next_squad.minplayer <= nb_players) then
-         local static_target = getTargetsStatic()
-         local squad_spawn_point = nil
+    while (wave and squad_nb <= #wave.squads) do
+        next_squad = wave.squads[squad_nb]
+        if (next_squad.minplayer <= nb_players) then
+            local static_target = getTargetsStatic()
+            local squad_spawn_point = nil
 
-         if (static_target) then
-            squad_spawn_point = getRandomCystAroundMarine(static_target:GetOrigin())
-         else
-            squad_spawn_point = getRandomCystAroundMarine()
-         end
+            if (static_target) then
+                squad_spawn_point = getRandomCystAroundMarine(static_target:GetOrigin())
+            else
+                squad_spawn_point = getRandomCystAroundMarine()
+            end
 
-         -- Shared:FadedMessage("Squad " .. tostring(squad_nb) .. "/" .. tostring(#wave.squads) .. " spawned")
-         -- updateGUICounter()
+            -- Shared:FadedMessage("Squad " .. tostring(squad_nb) .. "/" .. tostring(#wave.squads) .. " spawned")
+            -- updateGUICounter()
 
-         local numSpawn = 0
-         local numSpawnMax = 0
-         for _, alien in ipairs(next_squad) do
-             numSpawnMax = numSpawnMax + alien.nb
-             for i = 1, alien.nb do
-                 local isLifeformUnlocked = false
+            local numSpawn = 0
+            local numSpawnMax = 0
+            for _, alien in ipairs(next_squad) do
+                numSpawnMax = numSpawnMax + alien.nb
+                for i = 1, alien.nb do
+                    local isLifeformUnlocked = false
 
 
-                 if defense_hell_wave_type == "Grind" then
-                     if alien.mapName == Skulk.kMapName and FadedRoundTimer_GetRoundTime()/60 >= skulk_timing then
-                         isLifeformUnlocked = true
-                     elseif alien.mapName == Lerk.kMapName and FadedRoundTimer_GetRoundTime()/60 >= lerk_timing then
-                         isLifeformUnlocked = true
-                     elseif alien.mapName == Fade.kMapName and FadedRoundTimer_GetRoundTime()/60 >= fade_timing then
-                         isLifeformUnlocked = true
-                     elseif alien.mapName == Onos.kMapName and FadedRoundTimer_GetRoundTime()/60 >= onos_timing then
-                         isLifeformUnlocked = true
-                     elseif alien.mapName == Gorge.kMapName and FadedRoundTimer_GetRoundTime()/60 >= gorge_timing then
-                         isLifeformUnlocked = true
-                     end
-                 else
-                     isLifeformUnlocked = true
-                 end
+                    if defense_hell_wave_type == "Grind" then
+                        if alien.mapName == Skulk.kMapName and FadedRoundTimer_GetRoundTime()/60 >= skulk_timing then
+                            isLifeformUnlocked = true
+                        elseif alien.mapName == Lerk.kMapName and FadedRoundTimer_GetRoundTime()/60 >= lerk_timing then
+                            isLifeformUnlocked = true
+                        elseif alien.mapName == Fade.kMapName and FadedRoundTimer_GetRoundTime()/60 >= fade_timing then
+                            isLifeformUnlocked = true
+                        elseif alien.mapName == Onos.kMapName and FadedRoundTimer_GetRoundTime()/60 >= onos_timing then
+                            isLifeformUnlocked = true
+                        elseif alien.mapName == Gorge.kMapName and FadedRoundTimer_GetRoundTime()/60 >= gorge_timing then
+                            isLifeformUnlocked = true
+                        end
+                    else
+                        isLifeformUnlocked = true
+                    end
 
-                 if not isLifeformUnlocked then
-                     alien.mapName = Skulk.kMapName
-                     isLifeformUnlocked = true
-                 end
+                    if not isLifeformUnlocked then
+                        alien.mapName = Skulk.kMapName
+                        isLifeformUnlocked = true
+                    end
 
-                 if (getUnspawnedLifeform(alien.mapName) > 0 and isLifeformUnlocked) then
-                     tunnel = getRandomTunnel()
-                     if (tunnel and (math.random() < 0.45 or (defense_hell_wave and math.random() < 0.85))) then
-                         tunnel.def_last_spawn = Shared.GetTime()
-                         spawnEntUsingTunnel(tunnel, alien.mapName)
-                     else
+                    if (getUnspawnedLifeform(alien.mapName) > 0 and isLifeformUnlocked) then
+                        tunnel = getRandomTunnel()
+                        if (tunnel and (math.random() < 0.45 or (defense_hell_wave and math.random() < 0.85))) then
+                            tunnel.def_last_spawn = Shared.GetTime()
+                            spawnEntUsingTunnel(tunnel, alien.mapName)
+                        else
                          local hive = getRandomHive
                          spawnAlienCreature(alien.mapName, hive:GetOrigin())
-                     end
-                     lifeformSpawned(alien.mapName)
-                     numSpawn = numSpawn + 1
-                 end
-             end
-         end
+                        end
+                        lifeformSpawned(alien.mapName)
+                        numSpawn = numSpawn + 1
+                    end
+                end
+            end
 
-         squad_nb = squad_nb + 1
-         last_squad_created = Shared.GetTime()
-         return 1
-      end
-      squad_nb = squad_nb + 1 -- Skip squad (only available with more players)
-   end
-   return 0
+            squad_nb = squad_nb + 1
+            last_squad_created = Shared.GetTime()
+            return 1
+        end
+        squad_nb = squad_nb + 1 -- Skip squad (only available with more players)
+    end
+    return 0
 end
 
 local last_message = 0
 local function triggerNextWave()
-   if (wave_nb == 0) then
-      return 0
-   end
+    if (wave_nb == 0) then
+        return 0
+    end
 
-   if (trader_wave == false or (trader_wave == true and next_wave_time < Shared.GetTime())) then
-      if (wave_nb <= #defense_waves_config) then
-         if (squad_nb > #defense_waves_config[wave_nb].squads) then
-            if (wave_nb < #defense_waves_config
-                and (getBotsNumberAlive() <= 4 or last_squad_created + 70 < Shared.GetTime())) then
-               return 0
-            elseif wave_nb == #defense_waves_config and getBotsNumberAlive() == 0 then
-               return 0
+    if (trader_wave == false or (trader_wave == true and next_wave_time < Shared.GetTime())) then
+        if (wave_nb <= #defense_waves_config) then
+            if (squad_nb > #defense_waves_config[wave_nb].squads) then
+                if (wave_nb < #defense_waves_config
+                        and (getBotsNumberAlive() <= 3 or last_squad_created + 75 < Shared.GetTime())) then
+                    def_last_damages_point = {}
+                    return 0
+                elseif wave_nb == #defense_waves_config and getBotsNumberAlive() == 0 then
+                    if defense_hell_wave_type == "Grind" then
+                        triggerGrindHellWave() -- Reset
+                    end
+
+                    return 0
+                end
             end
-         end
-      end
-   end
-   return -1
+        end
+    end
+    return -1
 end
 
 local old_TechTree_GetHasTech = TechTree.GetHasTech
@@ -1244,197 +1304,197 @@ function TechTree:GetHasTech(techId)
 end
 
 local function startNextWave()
-   squad_nb = 1
-   trader_wave = false
-   wave_nb = wave_nb + 1
-   defenseToggleMinimap(false)
+    squad_nb = 1
+    trader_wave = false
+    wave_nb = wave_nb + 1
+    defenseToggleMinimap(false)
 
-   if (wave_nb <= #defense_waves_config) then
-      local musics =
-         {
+    if (wave_nb <= #defense_waves_config) then
+        local musics =
+        {
             "sound/NS2.fev/ambient/ns1_pad_1",
             "sound/NS2.fev/ambient/ns1_pad_2",
             "sound/NS2.fev/ambient/ns1_pad_3"
-         }
+        }
 
 
-      local wave = defense_waves_config[wave_nb]
-      local nb_players = getNbPlayerAliveForTeam1()
+        local wave = defense_waves_config[wave_nb]
+        local nb_players = getNbPlayerAliveForTeam1()
 
-      remaining_lifeform = {}
-      unspawn_lifeform = {}
-      for _, squad in ipairs(wave.squads) do
-         if (squad.minplayer <= nb_players) then
-            for _, lifeform in ipairs(squad) do
-               if (remaining_lifeform[lifeform.mapName] == nil) then
-                  remaining_lifeform[lifeform.mapName] = 0
-               end
-               if (unspawn_lifeform[lifeform.mapName] == nil) then
-                  unspawn_lifeform[lifeform.mapName] = 0
-               end
-               remaining_lifeform[lifeform.mapName] = remaining_lifeform[lifeform.mapName] + lifeform.nb
-               unspawn_lifeform[lifeform.mapName] = unspawn_lifeform[lifeform.mapName] + lifeform.nb
+        remaining_lifeform = {}
+        unspawn_lifeform = {}
+        for _, squad in ipairs(wave.squads) do
+            if (squad.minplayer <= nb_players) then
+                for _, lifeform in ipairs(squad) do
+                    if (remaining_lifeform[lifeform.mapName] == nil) then
+                        remaining_lifeform[lifeform.mapName] = 0
+                    end
+                    if (unspawn_lifeform[lifeform.mapName] == nil) then
+                        unspawn_lifeform[lifeform.mapName] = 0
+                    end
+                    remaining_lifeform[lifeform.mapName] = remaining_lifeform[lifeform.mapName] + lifeform.nb
+                    unspawn_lifeform[lifeform.mapName] = unspawn_lifeform[lifeform.mapName] + lifeform.nb
+                end
             end
-         end
-      end
+        end
 
-      -- for _, marine in ipairs(GetEntitiesForTeam("Player", 1)) do
-      --    Server.SendNetworkMessage(marine, "PlayClientPrivateMusic", { music = "sound/NS2.fev/ambient/descent/docking_background_music", volume = 2 }, true)
-      -- end
+        -- for _, marine in ipairs(GetEntitiesForTeam("Player", 1)) do
+        --    Server.SendNetworkMessage(marine, "PlayClientPrivateMusic", { music = "sound/NS2.fev/ambient/descent/docking_background_music", volume = 2 }, true)
+        -- end
 
-      if (wave) then
-         if (wave.upgrades) then
-            local marinetechtree = GetTechTree(kTeam1Index)
-            for _, up in ipairs(wave.upgrades) do
-               if (up and not marinetechtree:GetTechNode(up):GetResearched())
-               then -- Unlock if not already on
-                  local armslab = GetEntitiesForTeam("ArmsLab", 1)
-                  if (#armslab > 0) then
-                     marinetechtree:GetTechNode(up):SetResearched(true)
-                     marinetechtree:QueueOnResearchComplete(up, armslab[1])
-                  end
-               end
+        if (wave) then
+            if (wave.upgrades) then
+                local marinetechtree = GetTechTree(kTeam1Index)
+                for _, up in ipairs(wave.upgrades) do
+                    if (up and not marinetechtree:GetTechNode(up):GetResearched())
+                    then -- Unlock if not already on
+                        local armslab = GetEntitiesForTeam("ArmsLab", 1)
+                        if (#armslab > 0) then
+                            marinetechtree:GetTechNode(up):SetResearched(true)
+                            marinetechtree:QueueOnResearchComplete(up, armslab[1])
+                        end
+                    end
+                end
             end
-         end
 
-         if (wave_nb < #defense_waves_config) then -- No music after the last round
-            for _, marine in ipairs(GetEntitiesForTeam("Player", 1)) do
-               marine.def_nb_alien_on_it = 0 -- Reset, just in case
+            if (wave_nb < #defense_waves_config) then -- No music after the last round
+                for _, marine in ipairs(GetEntitiesForTeam("Player", 1)) do
+                    marine.def_nb_alien_on_it = 0 -- Reset, just in case
 
-               -- local music = musics[math.random(1, #musics)]
-               -- Server.SendNetworkMessage(marine, "PlayClientPrivateMusic", { music = music, volume = 2 }, true)
-               if (marine.ClearOrders) then
-                  marine:ClearOrders()
-               end
-               Server.SendNetworkMessage(marine, "setTraderBuildingIds", { armory_id = -1, proto_id = -1 }, true)
+                    -- local music = musics[math.random(1, #musics)]
+                    -- Server.SendNetworkMessage(marine, "PlayClientPrivateMusic", { music = music, volume = 2 }, true)
+                    if (marine.ClearOrders) then
+                        marine:ClearOrders()
+                    end
+                    Server.SendNetworkMessage(marine, "setTraderBuildingIds", { armory_id = -1, proto_id = -1 }, true)
+                end
             end
-         end
 
-         setTraderArmoryId(-1)
-         setTraderProtoId(-1)
+            setTraderArmoryId(-1)
+            setTraderProtoId(-1)
 
-      end
-   end
+        end
+    end
 
-   -- Shared:FadedMessage("Wave n'" .. tostring(wave_nb) .. "/" .. #defense_waves_config
-   --                        .. " --> aliens: " .. tostring(getWaveAlienNb()))
+    -- Shared:FadedMessage("Wave n'" .. tostring(wave_nb) .. "/" .. #defense_waves_config
+    --                        .. " --> aliens: " .. tostring(getWaveAlienNb()))
 end
 
 local function triggerTraderWave()
-   if (wave_nb > 0 and triggerNextWave() == 0 and trader_wave == false) then
-      return 0
-   end
-   return -1
+    if (wave_nb > 0 and triggerNextWave() == 0 and trader_wave == false) then
+        return 0
+    end
+    return -1
 end
 
 local function respawnDeadMarines()
-   local marine_spawn_points = {}
-   for _, alive_p in ipairs(GetEntitiesForTeam("InfantryPortal", 1))
-   do
-      table.insert(marine_spawn_points, alive_p)
-   end
-   -- if (#marine_spawn_points == 0) then
-   --    for _, alive_p in ipairs(GetEntitiesForTeam("Armory", 1))
-   --    do
-   --       table.insert(marine_spawn_points, alive_p)
-   --    end
-   -- end
-   if (#marine_spawn_points == 0) then
-      for _, alive_p in ipairs(GetEntitiesForTeam("Player", 1))
-      do
-         table.insert(marine_spawn_points, alive_p)
-      end
-   end
+    local marine_spawn_points = {}
+    for _, alive_p in ipairs(GetEntitiesForTeam("InfantryPortal", 1))
+    do
+        table.insert(marine_spawn_points, alive_p)
+    end
+    -- if (#marine_spawn_points == 0) then
+    --    for _, alive_p in ipairs(GetEntitiesForTeam("Armory", 1))
+    --    do
+    --       table.insert(marine_spawn_points, alive_p)
+    --    end
+    -- end
+    if (#marine_spawn_points == 0) then
+        for _, alive_p in ipairs(GetEntitiesForTeam("Player", 1))
+        do
+            table.insert(marine_spawn_points, alive_p)
+        end
+    end
 
-   if (#marine_spawn_points > 0) then
-      local i = math.random(1, #marine_spawn_points)
-      for _, player in ipairs(GetEntitiesForTeam("Player", 1))
-      do
-         local sp = marine_spawn_points[i]:GetOrigin()
-         local orig = GetLocationAroundFor(sp, kTechId.Marine, 12)
-         if (player and player:GetIsAlive() ~= true) then
-            local np = player:Replace(Marine.kMapName, 1, false, orig)
-            if (np) then
-               np:SetCameraDistance(0)
+    if (#marine_spawn_points > 0) then
+        local i = math.random(1, #marine_spawn_points)
+        for _, player in ipairs(GetEntitiesForTeam("Player", 1))
+        do
+            local sp = marine_spawn_points[i]:GetOrigin()
+            local orig = GetLocationAroundFor(sp, kTechId.Marine, 12)
+            if (player and player:GetIsAlive() ~= true) then
+                local np = player:Replace(Marine.kMapName, 1, false, orig)
+                if (np) then
+                    np:SetCameraDistance(0)
+                end
             end
-         end
-      end
-   end
+        end
+    end
 end
 
 function skipTraderWave()
-   next_wave_time = Shared.GetTime()
+    next_wave_time = Shared.GetTime()
 end
 
 local function startTraderWave()
-   remaining_lifeform = {}
-   unspawn_lifeform = {}
+    remaining_lifeform = {}
+    unspawn_lifeform = {}
 
-   trader_wave = true
-   if (Shared.GetMapName() == "ns2_def_troopers") then
-       next_wave_time = Shared.GetTime() + 7 * wave_nb * 1.6 -- trader_delay
-   else
-      next_wave_time = Shared.GetTime() + 7 * wave_nb * 1.6 -- trader_delay
-   end
+    trader_wave = true
+    if (Shared.GetMapName() == "ns2_def_troopers") then
+        next_wave_time = Shared.GetTime() + 5 + 7 * wave_nb * 1.7 -- trader_delay
+    else
+        next_wave_time = Shared.GetTime() + 5 + 7 * wave_nb * 1.7 -- trader_delay
+    end
 
-   if wave_nb == 6 then
-       next_wave_time = next_wave_time + wave_nb * 2
-       if wave_nb == 6 then
-           next_wave_time = next_wave_time + 10
-       end
-   end
+    if wave_nb == 6 then
+        next_wave_time = next_wave_time + wave_nb * 2
+        if wave_nb == 6 then
+            next_wave_time = next_wave_time + 10
+        end
+    end
 
-   if (wave_nb > #defense_waves_config) then
-      next_wave_time = Shared.GetTime() + 0 -- Skip trader after end of last wave
-   end
+    if (wave_nb > #defense_waves_config) then
+        next_wave_time = Shared.GetTime() + 0 -- Skip trader after end of last wave
+    end
 
-   for _, marine in ipairs(GetEntitiesForTeam("Player", 1)) do
-      Server.SendNetworkMessage(marine, "PlayClientPrivateMusic", { music = "sound/NS2.fev/ambient/Decaypad", volume = 2 }, true)
-   end
-   -- respawnDeadMarines()
-   -- updateGUICounter()
-   local armories = GetEntitiesForTeam("Armory", 1)
-   if (#armories > 0) then
-      for i = 1, 20 do
-         local it = math.random(1, #armories)
-         new_armory = armories[it]
-         if (new_armory ~= trader_armory) then
-            break
-         end
-      end
-      if (new_armory) then
-         trader_armory = new_armory
-      end
-      ------
-      local protolabs = GetEntitiesForTeamWithinRange("PrototypeLab", 1, trader_armory:GetOrigin(), 15)
-      local proto_id = -1
-      if (#protolabs > 0) then
-         proto_id = protolabs[1]:GetId()
-      end
-      -- ------
-      -- for _, marine in ipairs(GetEntitiesForTeam("Player", 1)) do
-      --    if (marine.GiveOrder) then
-      --       marine:GiveOrder(kTechId.Move, trader_armory:GetId(), nil)
-      --    end
-      --    Server.SendNetworkMessage(marine, "setTraderBuildingIds", { armory_id = trader_armory:GetId(), proto_id = proto_id }, true)
-      -- end
+    for _, marine in ipairs(GetEntitiesForTeam("Player", 1)) do
+        Server.SendNetworkMessage(marine, "PlayClientPrivateMusic", { music = "sound/NS2.fev/ambient/Decaypad", volume = 2 }, true)
+    end
+    -- respawnDeadMarines()
+    -- updateGUICounter()
+    local armories = GetEntitiesForTeam("Armory", 1)
+    if (#armories > 0) then
+        for i = 1, 20 do
+            local it = math.random(1, #armories)
+            new_armory = armories[it]
+            if (new_armory ~= trader_armory) then
+                break
+            end
+        end
+        if (new_armory) then
+            trader_armory = new_armory
+        end
+        ------
+        local protolabs = GetEntitiesForTeamWithinRange("PrototypeLab", 1, trader_armory:GetOrigin(), 15)
+        local proto_id = -1
+        if (#protolabs > 0) then
+            proto_id = protolabs[1]:GetId()
+        end
+        -- ------
+        -- for _, marine in ipairs(GetEntitiesForTeam("Player", 1)) do
+        --    if (marine.GiveOrder) then
+        --       marine:GiveOrder(kTechId.Move, trader_armory:GetId(), nil)
+        --    end
+        --    Server.SendNetworkMessage(marine, "setTraderBuildingIds", { armory_id = trader_armory:GetId(), proto_id = proto_id }, true)
+        -- end
 
 
-      setTraderArmoryId(trader_armory:GetId())
-      setTraderProtoId(proto_id)
-   end
-   -- Shared:FadedMessage("Next wave in " .. tostring(trader_delay) .. "s")
+        setTraderArmoryId(trader_armory:GetId())
+        setTraderProtoId(proto_id)
+    end
+    -- Shared:FadedMessage("Next wave in " .. tostring(trader_delay) .. "s")
 end
 
 local freezeBots = false
 function toggleBotSpawn(player)
-   freezeBots = not freezeBots
-   if (freezeBots) then
-      for _, a in ipairs(GetEntities("Alien")) do
-         a:Kill()
-      end
-   end
-   -- player:FadedMessage("Toggling bots : " .. tostring(freezeBots))
+    freezeBots = not freezeBots
+    if (freezeBots) then
+        for _, a in ipairs(GetEntities("Alien")) do
+            a:Kill()
+        end
+    end
+    -- player:FadedMessage("Toggling bots : " .. tostring(freezeBots))
 end
 
 
@@ -1444,125 +1504,125 @@ function handleWaves()
 
     -- Log("Order count: %d entities", #GetEntities("Order"))
 
-   if (init == false) then
-      resetWaves()
-   end
+    if (init == false) then
+        resetWaves()
+    end
 
-   if (not GetGamerules():GetGameStarted() or freezeBots) then
-      return true
-   end
+    if (not GetGamerules():GetGameStarted() or freezeBots) then
+        return true
+    end
 
-   -- for _, skulk_player in ipairs(GetEntitiesForTeam("Alien", 2)) do
-   --    if (skulk_player and skulk_player.client) then
-   --       changeToAlienFieldCom(skulk_player)
-   --    end
-   -- end
+    -- for _, skulk_player in ipairs(GetEntitiesForTeam("Alien", 2)) do
+    --    if (skulk_player and skulk_player.client) then
+    --       changeToAlienFieldCom(skulk_player)
+    --    end
+    -- end
 
 
-   if Shared.GetMapName() == "ns2_def_troopers" and FadedRoundTimer_GetRoundTime() < trooper_start_grace then
-       return true
-   end
+    if Shared.GetMapName() == "ns2_def_troopers" and FadedRoundTimer_GetRoundTime() < trooper_start_grace then
+        return true
+    end
 
-   if (Shared.GetMapName() ~= "ns2_def_troopers") then
-      randomBonusDrop()
-   end
+    -- if (Shared.GetMapName() ~= "ns2_def_troopers") then -- too heavy on perf
+    --    randomBonusDrop()
+    -- end
 
-   -- wave_check_delay = wave_check_delay + timePassed
-   -- if (wave_check_delay >= 1) then
-   --    wave_check_delay = 0
+    -- wave_check_delay = wave_check_delay + timePassed
+    -- if (wave_check_delay >= 1) then
+    --    wave_check_delay = 0
 
-   if (force_next) then
-      for i = 1, math.min(30, force_next) do
-         spawnNextSquad()
-      end
-      force_next = false
-   else
-      if (force_next_wave or triggerTraderWave() == 0) then
-         startTraderWave()
-      end
-      if (force_next_wave or triggerNextWave() == 0) then
-         startNextWave()
-         force_next_wave = false
-      else
-         local i = 0
+    if (force_next) then
+        for i = 1, math.min(30, force_next) do
+            spawnNextSquad()
+        end
+        force_next = false
+    else
+        if (force_next_wave or triggerTraderWave() == 0) then
+            startTraderWave()
+        end
+        if (force_next_wave or triggerNextWave() == 0) then
+            startNextWave()
+            force_next_wave = false
+        else
+            local i = 0
 
-         --
-         local max_babblers = 35
-         local num_babblers = #GetEntities("Babbler")
-         if defense_rain_hell then
-             local marines = GetEntitiesForTeam("Player", 1)
-             for i = 0, 3, 1 do -- Bomb 3 marines randomly
-                 local aliens = GetEntitiesForTeam("Gorge", 2)
-                 local m = marines and marines[math.random(1, #marines)]
-                 local a = aliens and aliens[math.random(1, #aliens)]
+            --
+            local max_babblers = 0
+            local num_babblers = #GetEntities("Babbler")
+            if defense_rain_hell then
+                local marines = GetEntitiesForTeam("Player", 1)
+                for i = 0, 3, 1 do -- Bomb 3 marines randomly
+                    local aliens = GetEntitiesForTeam("Gorge", 2)
+                    local m = marines and marines[math.random(1, #marines)]
+                    local a = aliens and aliens[math.random(1, #aliens)]
 
-                 if not a then
-                     a = CreateEntity(Gorge.kMapName,
-                                      m:GetOrigin() + Vector(math.random()*15-7, 40, math.random()*15-7),
-                                      2)
-                 end
+                    if not a then
+                        a = CreateEntity(Gorge.kMapName,
+                                m:GetOrigin() + Vector(math.random()*15-7, 40, math.random()*15-7),
+                                2)
+                    end
 
-                 if m and a then
-                     if math.random() < 0.4 then
-                         a:CreatePredictedProjectile( "Bomb",
-                                                      m:GetOrigin() + Vector(math.random()*15-7, 20, math.random()*15-7),
-                                                      Vector(0, -3, 0), 0, 0, nil )
-                     end
+                    if m and a then
+                        if math.random() < 0.4 then
+                            a:CreatePredictedProjectile( "Bomb",
+                                    m:GetOrigin() + Vector(math.random()*15-7, 20, math.random()*15-7),
+                                    Vector(0, -3, 0), 0, 0, nil )
+                        end
 
-                     -- a:CreatePredictedProjectile( "Bomb",
-                     --                              m:GetOrigin() + Vector(math.random()*15-7, 25, math.random()*15-7),
-                     --                              Vector(0, -1, 0), 0, 0, nil )
-                     -- a:CreatePredictedProjectile( "Bomb",
-                     --                              m:GetOrigin() + Vector(math.random()*15-7, 30, math.random()*15-7),
-                     --                              Vector(0, -4, 0), 0, 0, nil )
+                        -- a:CreatePredictedProjectile( "Bomb",
+                        --                              m:GetOrigin() + Vector(math.random()*15-7, 25, math.random()*15-7),
+                        --                              Vector(0, -1, 0), 0, 0, nil )
+                        -- a:CreatePredictedProjectile( "Bomb",
+                        --                              m:GetOrigin() + Vector(math.random()*15-7, 30, math.random()*15-7),
+                        --                              Vector(0, -4, 0), 0, 0, nil )
 
-                     if i == 0 and isServerLoadMin() and getBotsNumberAlive() < 45 then
-                         CreateEntity(math.random() < 0.7 and Skulk.kMapName or Lerk.kMapName, m:GetOrigin()
-                                          + Vector(math.random()*15-7, 35, math.random()*15-7), 2)
-                     end
+                        if i == 0 and isServerLoadMin() and getBotsNumberAlive() < 45 then
+                            CreateEntity(math.random() < 0.7 and Skulk.kMapName or Lerk.kMapName, m:GetOrigin()
+                                    + Vector(math.random()*15-7, 35, math.random()*15-7), 2)
+                        end
 
-                     -- for i = 0, 5, 1 do
-                     for j = 0, 1, 1 do
-                         if (math.random() > num_babblers / max_babblers) then -- The more babb, the less we spawn them
-                             local b = CreateEntity(Babbler.kMapName,
-                                                    (m:GetOrigin()
-                                                         + Vector(math.random()*20-10, 35, math.random()*20-10)),
-                                                    2)
+                        -- for i = 0, 5, 1 do
+                        for j = 0, 1, 1 do
+                            if (math.random() > num_babblers / max_babblers) then -- The more babb, the less we spawn them
+                                local b = CreateEntity(Babbler.kMapName,
+                                        (m:GetOrigin()
+                                                + Vector(math.random()*20-10, 35, math.random()*20-10)),
+                                        2)
 
-                             if b then
-                                 b:SetMoveType(kBabblerMoveType.Attack, m, m:GetOrigin())
-                             end
-                         end
+                                if b then
+                                    b:SetMoveType(kBabblerMoveType.Attack, m, m:GetOrigin())
+                                end
+                            end
 
-                     end
-                     -- end
-                 end
-             end
-         end
-
-         --
-
-         while (i < 5 and (triggerNextSquad() == 0)) do
-             spawnNextSquad()
-             spawnNextSquad()
-             spawnNextSquad()
-             spawnNextSquad()
-             if defense_hell_wave then
-                 spawnNextSquad()
-                 spawnNextSquad()
-                 spawnNextSquad()
-                 spawnNextSquad()
-                 spawnNextSquad()
-                 spawnNextSquad()
-             end
-            if (spawnNextSquad() ~= 1) then
-               break
+                        end
+                        -- end
+                    end
+                end
             end
-            i = i + 1
-         end
-      end
-   end
-   -- end
-   refreshAllCounterData()
-   return true
+
+            --
+
+            while (i < 5 and (triggerNextSquad() == 0)) do
+                spawnNextSquad()
+                spawnNextSquad()
+                spawnNextSquad()
+                spawnNextSquad()
+                if defense_hell_wave then
+                    spawnNextSquad()
+                    spawnNextSquad()
+                    spawnNextSquad()
+                    spawnNextSquad()
+                    spawnNextSquad()
+                    spawnNextSquad()
+                end
+                if (spawnNextSquad() ~= 1) then
+                    break
+                end
+                i = i + 1
+            end
+        end
+    end
+    -- end
+    refreshAllCounterData()
+    return true
 end
