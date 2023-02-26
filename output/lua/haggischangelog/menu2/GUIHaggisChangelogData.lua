@@ -23,7 +23,26 @@ end
 
 gHaggisChangelogData =
 [[
+»12 February 2023
+    ● Onos Devour removed from vanilla
+»28 January 2023
+    ● Added combat maps: co_blackmesa, co_summit co_niveus, co_ayumi, co_kestrel
+    ● Removed vanilla maps: ns2_veil_cured and ns2_veil_prelude. These veil versions have become obsolete with the official ns2_veil from patch 344
+»23 January 2023
+    ● Fade cost 35 -> 37, +5% compared to vanilla
+    ● Onos cost 55 -> 58, +5% compared to vanilla
+»9 January 2023
+    ● Fade cost 35 -> 39, +10% compared to vanilla
+    ● Onos cost 55 -> 61, +10% compared to vanilla
+»3 January 2023
+    ● Skulk max speed 7.25 -> 7.975, +10% compared to vanilla
+»2 January 2023
+    ● Skulk health 75 -> 82, +10% compared to vanilla
+    ● Skulk armor 10 -> 11, +10% compared to vanilla
+    ● Reduced cyst build time 1/2 compared to vanilla
 »31 December 2022
+    ● Improved skulk health (75 -> 90), armor (10 -> 12) and speed (7.25 -> 8.7)
+    ● Improved cyst handling: Reduced cyst build time (1/3) and reduced damage when cyst chain is broken (1/2)
     ● Fixed Meter skill
 »19 December 2022
     ● Add Defense mod

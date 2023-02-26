@@ -79,7 +79,8 @@ Shine.Hook.Add( "OnGetNiceMapName", "MyGetNiceMapName", function( MapName)
 		gg = "Gun Game:",
 		ls = "Last Stand:",
 		infest = "Infested:",
-		tow = "Defense:"
+		tow = "Defense:",
+		gr = "Gorge Run:"
 	}
 	KnownPrefixWords.infect = KnownPrefixWords.infest
 
