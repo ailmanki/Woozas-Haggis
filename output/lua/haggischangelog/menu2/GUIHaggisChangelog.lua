@@ -82,7 +82,7 @@ local function UpdateResolutionScaling(self, newX, newY)
 end
 
 -- needs to be a float
-local kHaggisVersion = "8.30"
+local kHaggisVersion = "8.32"
 function GetHaggisVersion()
     return kHaggisVersion
 end

@@ -23,6 +23,11 @@ end
 
 gHaggisChangelogData =
 [[
+»2 April 2023
+    ● Thanks to alnair, you can now choose any team you want before the game begins!
+»25 Mars 2023
+    ● Created a separate server "Defense Force #1" for the Defence mod, it was counterproductive to seeding, which was what it aimed to achieve
+    ● Added a fix for team joining from alnair to keep the teams in balance
 »12 February 2023
     ● Onos Devour removed from vanilla
 »28 January 2023

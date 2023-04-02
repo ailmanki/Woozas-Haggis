@@ -101,6 +101,22 @@ function Plugin:JoinTeam( Gamerules, Player, NewTeam, _, ShineForce )
 		self:Notify(Player, self.Config.Teams[TeamIndex].TooManyMessage, NewTeam)
 		return false
 	end
+
+	local gamerules = GetGamerules()
+	local team1Players = gamerules.team1:GetNumPlayers()
+	local team2Players = gamerules.team2:GetNumPlayers()
+
+	-- Prevent team switch if the game has started
+	if (gamerules:GetGameState() ~= kGameState.Started) then
+		-- check if trying to join the team with the more players
+		if (team1Players > team2Players) and (NewTeam == gamerules.team1:GetTeamNumber()) then
+			self:Notify(Player, self.Config.Teams[TeamIndex].TooManyMessage, NewTeam)
+			return false
+		elseif (team2Players > team1Players) and (NewTeam == gamerules.team2:GetTeamNumber()) then
+			self:Notify(Player, self.Config.Teams[TeamIndex].TooManyMessage, NewTeam)
+			return false
+		end
+	end
 end
 
 --Restrict teams also at voterandom
