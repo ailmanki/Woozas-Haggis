@@ -107,7 +107,7 @@ function Plugin:JoinTeam( Gamerules, Player, NewTeam, _, ShineForce )
 	local team2Players = gamerules.team2:GetNumPlayers()
 
 	-- Prevent team switch if the game has started
-	if (gamerules:GetGameState() ~= kGameState.Started) then
+	if (gamerules:GetGameState() == kGameState.Started) then
 		-- check if trying to join the team with the more players
 		if (team1Players > team2Players) and (NewTeam == gamerules.team1:GetTeamNumber()) then
 			self:Notify(Player, self.Config.Teams[TeamIndex].TooManyMessage, NewTeam)
